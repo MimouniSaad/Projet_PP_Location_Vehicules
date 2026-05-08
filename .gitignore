@@ -3,6 +3,8 @@ autodoc/target/
 autodoc/src/main/resources/application-local.properties
 autodoc/.env
 
+echo "autoloc-frontend/" >> .gitignore
+
 # IntelliJ
 .idea/
 *.iml
