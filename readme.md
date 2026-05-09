@@ -1,7 +1,7 @@
 <h1 align="center"> Projet Module Principes de programmation </h1>
 <h1 align="center"> Projet REST API : Application de location de véhicules </h1>
 
-<p >
+<p align="center">
   <img src="https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=java" />
   <img src="https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=springboot" />
   <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
