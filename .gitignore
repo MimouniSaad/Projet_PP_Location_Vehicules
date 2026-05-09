@@ -1,16 +1,35 @@
-# Spring Boot
-autodoc/target/
-autodoc/src/main/resources/application-local.properties
-autodoc/.env
+# ─────────────────────────────────────────────
+# BACKEND — Spring Boot / Maven
+# ─────────────────────────────────────────────
+autoloc/target/
+autoloc/*.jar
+autoloc/*.war
+
+# Credentials locaux — JAMAIS committer
+autoloc/src/main/resources/application-local.properties
 
 # IntelliJ
 .idea/
 *.iml
 *.iws
+*.ipr
+out/
 
-# Maven
-autodoc/.mvn/wrapper/maven-wrapper.jar
+# ─────────────────────────────────────────────
+# FRONTEND — Angular / Node
+# ─────────────────────────────────────────────
+autoloc-front/node_modules/
+autoloc-front/dist/
+autoloc-front/.angular/
 
-# OS
+# ─────────────────────────────────────────────
+# SYSTÈME
+# ─────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+*.log
+
+# Variables d'environnement
+.env
+.env.local
+.env.production
