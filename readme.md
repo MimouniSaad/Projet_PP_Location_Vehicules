@@ -122,57 +122,56 @@ Modèle de base de données :  [Modèle Base de Données](Conceptions/car_locati
 ---
 ## Contenarisation avec Docker
 
-(Pour l'instant) pour voir la partie de **Docker_Compose**, allez sur la branche **`feature/develop`** puis : [Docker](autoloc) 
+Pour voir la partie de **Docker_Compose**, allez sur la branche **`feature/develop`** puis : [Docker](docker-compose.yaml) 
 
 <img width="1158" height="650" alt="image" src="https://github.com/user-attachments/assets/423d3aac-e141-4341-8a63-5b9e4042900d" />
 
-Accédez au **docker_compose.yaml** : [Docker_Compose](autoloc/docker-compose.yaml) 
+Accédez au **docker_compose.yaml** : [Docker_Compose](docker-compose.yaml) 
 
 Accédez au **docker_file** : [Docker_File](autoloc/Dockerfile) 
 
 ---
 
-## 🐳 Lancer l'application avec Docker Compose
+## Lancer l'application avec Docker Compose
 
 ### Prérequis
-- [Docker](https://www.docker.com/get-started) installé
-- [Docker Compose](https://docs.docker.com/compose/install/) installé
+- Docker
 
-### Étapes
+### Étapes de lancement du projet
 
 **1 — Cloner le projet**
 ```bash
-git clone https://github.com/votre-repo/autoloc.git
+git clone https://github.com/MimouniSaad/Projet_PP_Location_Vehicules.git
 cd autoloc
 ```
 
 **2 — Lancer tous les services**
 ```bash
-docker-compose up --build
+docker compose up
 ```
 
 **3 — Accéder aux services**
 
 | Service | URL | Description |
 |:---|:---|:---|
-| 🌐 Frontend Angular | `http://localhost:80` | Interface utilisateur |
-| ⚙️ API Backend | `http://localhost:8080` | API REST Spring Boot |
-| 🗄️ phpMyAdmin | `http://localhost:8081` | Administration base de données |
-| 🔌 MySQL | `localhost:3307` | Base de données (accès direct) |
+| Frontend Angular | `http://localhost:80` | Interface utilisateur |
+| API Backend | `http://localhost:8080` | API REST Spring Boot |
+| phpMyAdmin | `http://localhost:8081` | Administration base de données et tests des données |
+| MySQL | `localhost:3307` | Base de données |
 
 **4 — Arrêter les services**
 ```bash
-docker-compose down
+docker compose down
 ```
 
 **5 — Arrêter et supprimer les données**
 ```bash
-docker-compose down -v
+docker compose down
 ```
 
 ---
 
-### 📦 Services Docker
+### Services Docker
 
 | Conteneur | Image | Port |
 |:---|:---|:---:|
@@ -183,10 +182,10 @@ docker-compose down -v
 
 ---
 
-### 💾 Volume Docker
+### Volume Docker
 
 Les données MySQL sont **persistées** dans un volume Docker nommé `mysql_data`.  
-Cela signifie que vos données survivent aux redémarrages des conteneurs.
+Les données alors sont conservées lors du redémarrage des conteneurs.
 
 ```bash
 # Voir les volumes existants
@@ -200,52 +199,22 @@ docker volume rm autoloc_mysql_data
 
 ## Architecture du Projet
 
-### Vue d'ensemble
+### Architecture Spring
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                     CLIENT (Navigateur)                   │
-│                   Angular + Vite + Axios                    │
-└─────────────────────────┬────────────────────────────────┘
-                          │  HTTP + Bearer JWT
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│                  SPRING BOOT (port 8080)                  │
-│                                                          │
-│  ┌─────────────┐   ┌─────────────┐   ┌───────────────┐  │
-│  │  Security   │──▶│ Controller  │──▶│   Service     │  │
-│  │ JWT Filter  │   │@RestCtrl    │   │ @Service      │  │
-│  │ @PreAuth... │   │DTO Validation│  │ Logique métier│  │
-│  └─────────────┘   └─────────────┘   └───────┬───────┘  │
-│                                              │           │
-│                         ┌────────────────────┤           │
-│                         ▼                    ▼           │
-│                  ┌─────────────┐   ┌──────────────────┐  │
-│                  │ Repository  │   │ Services transv. │  │
-│                  │ JpaRepo...  │   │ NotifService     │  │
-│                  └──────┬──────┘   │ PdfService       │  │
-│                         │          │ MailService      │  │
-│                         │          └──────────────────┘  │
-└─────────────────────────┼────────────────────────────────┘
-                          │  JPA / Hibernate / Flyway
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│              MySQL 8  (Railway.app / Docker)              │
-│         Schéma versionné avec Flyway migrations           │
-└──────────────────────────────────────────────────────────┘
-```
+### Rôle de chaque couche
 
-### Architecture en couches — responsabilités
-
-| Couche | Annotation | Responsabilité unique |
-|---|---|---|
-| **Controller** | `@RestController` | Reçoit la requête HTTP, valide le DTO avec `@Valid`, appelle le Service, renvoie `ResponseEntity` |
-| **Service** | `@Service` `@Transactional` | Contient toute la logique métier : règles, calculs, coordonne les Repositories et services transversaux |
-| **Repository** | `@Repository` | Unique point de contact avec la BDD — traduit les objets Java en SQL via JPA/Hibernate |
-| **Service transversal** | `@Service` | Responsabilité technique unique : NotifService (email), PdfService (PDF), MailService |
+| Couche | Annotation | Responsabilité |
+|:---|:---:|:---|
+| **Controller** | `@RestController` | Reçoit la requête HTTP, valide le DTO, appelle le Service, retourne `ResponseEntity` |
+| **Service** | `@Service` `@Transactional` | Logique métier complète : règles, calculs, coordination des Repositories |
+| **Repository** | `@Repository` | Unique point de contact avec la BDD — requêtes JPA/Hibernate |
+| **Mapper** | `@Mapper` | Conversion Entité ↔ DTO via MapStruct (zéro boilerplate) |
+| **Model** | `@Entity` | Entités JPA mappées aux tables MySQL |
 | **Security** | `Filter` | Intercepte chaque requête, valide le JWT, injecte l'utilisateur dans le contexte Spring |
+| **DTO** | — | Objets légers échangés avec le frontend — protège les entités |
+| **Exception** | `@ControllerAdvice` | Gestion centralisée des erreurs — retourne des réponses HTTP claires |
 
-### Structure des packages
+### Structure des packages et arborescence
 
 ```
 src/
@@ -315,7 +284,125 @@ src/
 └── test/
     └── java/com/location/
         ├── service/                      # Tests unitaires avec Mockito
-        └── controller/                   # Tests intégration avec MockMvc
+        └── controller/                   # Tests intégration avec MockMvcautoloc/
+└── src/
+├── main/
+│   ├── java/com/autoloc/
+│   │   ├── config/
+│   │   │   ├── DataInitializer.java
+│   │   │   ├── GlobalExceptionHandler.java
+│   │   │   └── SecurityConfig.java
+│   │   │
+│   │   ├── controller/
+│   │   │   ├── AuthController.java
+│   │   │   ├── ClientController.java
+│   │   │   ├── MaintenanceController.java
+│   │   │   ├── NotificationController.java
+│   │   │   ├── PaiementController.java
+│   │   │   ├── ReservationController.java
+│   │   │   ├── TechnicienController.java
+│   │   │   └── VehiculeController.java
+│   │   │
+│   │   ├── dto/
+│   │   │   ├── ChangePasswordRequest.java
+│   │   │   ├── ClientRequest/Response.java
+│   │   │   ├── JwtResponse.java
+│   │   │   ├── LoginRequest.java
+│   │   │   ├── MaintenanceRequest/Response.java
+│   │   │   ├── NotificationRequest/Response.java
+│   │   │   ├── PaiementRequest/Response.java
+│   │   │   ├── RegisterRequest.java
+│   │   │   ├── ReservationRequest/Response.java
+│   │   │   ├── TechnicienRequest/Response.java
+│   │   │   ├── UpdateProfilRequest.java
+│   │   │   ├── VehiculeRequest.java
+│   │   │   └── VehiculeResponse.java
+│   │   │
+│   │   ├── enums/
+│   │   │   ├── categoriePermis.java
+│   │   │   ├── modePaiement.java
+│   │   │   ├── paysEmission.java
+│   │   │   ├── statutMaintenance.java
+│   │   │   ├── statutPaiement.java
+│   │   │   ├── statutReservation.java
+│   │   │   ├── statutVehicule.java
+│   │   │   └── userRole.java
+│   │   │
+│   │   ├── exception/
+│   │   │   ├── GlobalExceptionHandler.java
+│   │   │   ├── MaintenanceNotFoundException.java
+│   │   │   ├── TechnicienNotFoundException.java
+│   │   │   ├── UserNotFoundException.java
+│   │   │   └── VehiculeNotFoundException.java
+│   │   │
+│   │   ├── mapper/
+│   │   │   ├── ClientMapper.java
+│   │   │   ├── MaintenanceMapper.java
+│   │   │   ├── NotificationMapper.java
+│   │   │   ├── PaiementMapper.java
+│   │   │   ├── ReservationMapper.java
+│   │   │   ├── TechnicienMapper.java
+│   │   │   └── VehiculeMapper.java
+│   │   │
+│   │   ├── model/
+│   │   │   ├── Admin.java
+│   │   │   ├── Camion.java
+│   │   │   ├── Client.java
+│   │   │   ├── Notification.java
+│   │   │   ├── Option.java
+│   │   │   ├── OrdreMaintenance.java
+│   │   │   ├── Paiement.java
+│   │   │   ├── PermisConduire.java
+│   │   │   ├── Reservation.java
+│   │   │   ├── SuperAdmin.java
+│   │   │   ├── Technicien.java
+│   │   │   ├── User.java           ← abstract
+│   │   │   ├── Vehicule.java       ← abstract
+│   │   │   └── Voiture.java
+│   │   │
+│   │   ├── repository/
+│   │   │   ├── ClientRepository.java
+│   │   │   ├── MaintenanceRepository.java
+│   │   │   ├── NotificationRepository.java
+│   │   │   ├── OptionRepository.java
+│   │   │   ├── PaiementRepository.java
+│   │   │   ├── ReservationRepository.java
+│   │   │   ├── TechnicienRepository.java
+│   │   │   ├── UserRepository.java
+│   │   │   └── VehiculeRepository.java
+│   │   │
+│   │   ├── security/
+│   │   │   ├── JwtFilter.java
+│   │   │   └── JwtUtil.java
+│   │   │
+│   │   ├── service/
+│   │   │   ├── AuthService.java
+│   │   │   ├── ClientService.java
+│   │   │   ├── MaintenanceService.java
+│   │   │   ├── NotificationService.java
+│   │   │   ├── PaiementService.java
+│   │   │   ├── ReservationService.java
+│   │   │   ├── TechnicienService.java
+│   │   │   └── VehiculeService.java
+│   │   │
+│   │   └── AutolocApplication.java
+│   │
+│   └── resources/
+│       ├── db.migration/
+│       │   └── V1__create_users.sql
+│       ├── application.properties
+│       └── schema.sql
+│
+└── test/
+└── java/com/autoloc/
+└── service/
+├── AuthServiceTest.java
+├── MaintenanceServiceTest.java
+├── NotificationServiceTest.java
+├── PaiementServiceTest.java
+├── ReservationServiceTest.java
+├── TechnicienServiceTest.java
+└── VehiculeServiceTest.java
 ```
 
 ### Docker Compose — 4 services
