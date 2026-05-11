@@ -130,8 +130,7 @@ Accédez au **docker_compose.yaml** : [Docker_Compose](autoloc/docker-compose.ya
 
 Accédez au **docker_file** : [Docker_File](autoloc/Dockerfile) 
 
-
-
+---
 
 ## 🚀 Lancer l'application avec Docker Compose
 
@@ -386,33 +385,6 @@ User (abstract)
 | `ADMIN` | admin@autoloc.com | Dashboard admin |
 | `SUPER_ADMIN` | superadmin@autoloc.com | Gestion admins |
 | `Technicien` | karim.mecano@autoloc.com | Dashboard technicien |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
