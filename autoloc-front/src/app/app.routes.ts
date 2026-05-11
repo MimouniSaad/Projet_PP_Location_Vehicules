@@ -52,7 +52,8 @@ export const routes: Routes = [
       { path: 'paiements', loadComponent: () => import('./pages/admin/paiements/admin-paiements.component').then(m => m.AdminPaiementsComponent) },
       { path: 'maintenance', loadComponent: () => import('./pages/admin/maintenance/admin-maintenance.component').then(m => m.AdminMaintenanceComponent) },
       { path: 'rapports', loadComponent: () => import('./pages/admin/rapports/admin-rapports.component').then(m => m.AdminRapportsComponent) },
-      { path: 'administrateurs', loadComponent: () => import('./pages/admin/administrateurs/admin-administrateurs.component').then(m => m.AdminAdministrateursComponent) }
+      { path: 'administrateurs', loadComponent: () => import('./pages/admin/administrateurs/admin-administrateurs.component').then(m => m.AdminAdministrateursComponent) },
+      { path: 'techniciens', loadComponent: () => import('./pages/admin/techniciens/admin-techniciens.component').then(m => m.AdminTechniciensComponent) }
     ]
   },
 

@@ -15,12 +15,12 @@ import { Reservation } from '../../../core/models/reservation.model';
 })
 export class ClientDashboardComponent implements OnInit {
   reservations: Reservation[] = [];
-  stats = { actives: 0, enAttente: 0, totalDepense: 0, notifications: 3 };
+  stats = { actives: 0, enAttente: 0, totalDepense: 0 };
 
   constructor(public auth: AuthService, private reservationService: ReservationService) {}
 
   ngOnInit(): void {
-    this.reservationService.getByClient(this.auth.userId).subscribe({
+    this.reservationService.getMesReservations().subscribe({
       next: (data) => {
         this.reservations = data.slice(0, 4);
         this.stats.actives = data.filter(r => ['CONFIRMEE','EN_ATTENTE'].includes(r.statut)).length;

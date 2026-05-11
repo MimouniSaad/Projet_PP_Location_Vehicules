@@ -1,38 +1,38 @@
 <div class="page">
   <div class="page-header">
     <p class="breadcrumb">Accès {{ auth.isSuperAdmin ? 'Super Administrateur' : 'Administrateur' }}</p>
-    <h1>⊞ Tableau de bord</h1>
+    <h1>Tableau de bord</h1>
   </div>
 
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-info">
         <div class="stat-label">Véhicules total</div>
-        <div class="stat-value">{{ etatParc.disponibles + etatParc.loues + etatParc.maintenance + etatParc.horsService || 10 }}</div>
-        <div class="stat-sub">{{ etatParc.disponibles || 6 }} disponibles</div>
+        <div class="stat-value">{{ parcTotal }}</div>
+        <div class="stat-sub">{{ etatParc.disponibles }} disponibles</div>
       </div>
       <div class="stat-icon" style="background:rgba(249,115,22,0.15)">🚗</div>
     </div>
     <div class="stat-card">
       <div class="stat-info">
-        <div class="stat-label">Réservations en att.</div>
-        <div class="stat-value">3</div>
+        <div class="stat-label">Réservations en attente</div>
+        <div class="stat-value">{{ reservationsAttente }}</div>
         <div class="stat-sub">À valider</div>
       </div>
       <div class="stat-icon" style="background:rgba(245,158,11,0.15)">📅</div>
     </div>
     <div class="stat-card">
       <div class="stat-info">
-        <div class="stat-label">CA ce mois</div>
-        <div class="stat-value">435€</div>
-        <div class="stat-sub">Paiements confirmés</div>
+        <div class="stat-label">Véhicules loués</div>
+        <div class="stat-value">{{ etatParc.loues }}</div>
+        <div class="stat-sub">En location active</div>
       </div>
-      <div class="stat-icon" style="background:rgba(34,197,94,0.15)">📊</div>
+      <div class="stat-icon" style="background:rgba(34,197,94,0.15)">🔑</div>
     </div>
     <div class="stat-card">
       <div class="stat-info">
         <div class="stat-label">Clients actifs</div>
-        <div class="stat-value">4</div>
+        <div class="stat-value">{{ clientsActifs }}</div>
         <div class="stat-sub">Comptes actifs</div>
       </div>
       <div class="stat-icon" style="background:rgba(59,130,246,0.15)">👥</div>
@@ -40,51 +40,40 @@
   </div>
 
   <div class="dashboard-grid">
-    <div class="card activite">
-      <h3>Activité récente</h3>
-      <div class="activite-list">
-        <div class="activite-item" *ngFor="let a of activiteRecente">
-          <div class="act-icon">{{ a.icon }}</div>
-          <div class="act-content">
-            <p>{{ a.text }}</p>
-            <span>{{ a.time }}</span>
-          </div>
-        </div>
+    <div class="card parc">
+      <h3>État du parc</h3>
+      <div class="parc-item">
+        <div class="parc-label">Disponibles</div>
+        <div class="parc-bar"><div class="parc-fill green" [style.width.%]="parcPct(etatParc.disponibles)"></div></div>
+        <div class="parc-count">{{ etatParc.disponibles }}</div>
+      </div>
+      <div class="parc-item">
+        <div class="parc-label">Loués</div>
+        <div class="parc-bar"><div class="parc-fill blue" [style.width.%]="parcPct(etatParc.loues)"></div></div>
+        <div class="parc-count">{{ etatParc.loues }}</div>
+      </div>
+      <div class="parc-item">
+        <div class="parc-label">Maintenance</div>
+        <div class="parc-bar"><div class="parc-fill orange" [style.width.%]="parcPct(etatParc.maintenance)"></div></div>
+        <div class="parc-count">{{ etatParc.maintenance }}</div>
+      </div>
+      <div class="parc-item">
+        <div class="parc-label">Hors service</div>
+        <div class="parc-bar"><div class="parc-fill red" [style.width.%]="parcPct(etatParc.horsService)"></div></div>
+        <div class="parc-count">{{ etatParc.horsService }}</div>
       </div>
     </div>
 
-    <div class="right-panel">
-      <div class="card parc">
-        <h3>État du parc</h3>
-        <div class="parc-item">
-          <div class="parc-label">Disponibles</div>
-          <div class="parc-bar"><div class="parc-fill green" [style.width.%]="(etatParc.disponibles || 6) * 10"></div></div>
-          <div class="parc-count">{{ etatParc.disponibles || 6 }}</div>
-        </div>
-        <div class="parc-item">
-          <div class="parc-label">Loués</div>
-          <div class="parc-bar"><div class="parc-fill blue" [style.width.%]="(etatParc.loues || 2) * 10"></div></div>
-          <div class="parc-count">{{ etatParc.loues || 2 }}</div>
-        </div>
-        <div class="parc-item">
-          <div class="parc-label">Maintenance</div>
-          <div class="parc-bar"><div class="parc-fill orange" style="width:10%"></div></div>
-          <div class="parc-count">{{ etatParc.maintenance || 1 }}</div>
-        </div>
-        <div class="parc-item">
-          <div class="parc-label">Hors service</div>
-          <div class="parc-bar"><div class="parc-fill red" style="width:10%"></div></div>
-          <div class="parc-count">{{ etatParc.horsService || 1 }}</div>
-        </div>
-      </div>
-
-      <div class="card actions">
-        <h3>Actions rapides</h3>
-        <a routerLink="/admin/reservations" class="action-item">✅ Valider réservations <span class="badge badge-warning">3</span></a>
-        <a routerLink="/admin/vehicules" class="action-item">🚗 Ajouter un véhicule</a>
-        <a routerLink="/admin/clients" class="action-item">👤 Créer un client</a>
-        <a routerLink="/admin/rapports" class="action-item">📊 Voir les rapports</a>
-      </div>
+    <div class="card actions">
+      <h3>Actions rapides</h3>
+      <a routerLink="/admin/reservations" class="action-item">
+        Valider réservations
+        <span class="badge badge-warning" *ngIf="reservationsAttente > 0">{{ reservationsAttente }}</span>
+      </a>
+      <a routerLink="/admin/vehicules" class="action-item">Ajouter un véhicule</a>
+      <a routerLink="/admin/clients" class="action-item">Gérer les clients</a>
+      <a routerLink="/admin/maintenance" class="action-item">Gérer la maintenance</a>
+      <a routerLink="/admin/rapports" class="action-item">Voir les rapports</a>
     </div>
   </div>
 </div>

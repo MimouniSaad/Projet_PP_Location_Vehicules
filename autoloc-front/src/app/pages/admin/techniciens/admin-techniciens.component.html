@@ -1,0 +1,119 @@
+<div class="page">
+  <div class="page-header">
+    <p class="breadcrumb">/admin/techniciens</p>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1>🔧 Gestion des techniciens</h1>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="search-wrap">
+          <span>🔍</span>
+          <input type="text" [(ngModel)]="keyword" (input)="search()" placeholder="Rechercher...">
+        </div>
+        <button type="button" class="btn btn-primary" (click)="openAdd()">+ Ajouter</button>
+      </div>
+    </div>
+    <p class="subtitle">{{ techniciens.length }} technicien(s) enregistré(s)</p>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table class="table" *ngIf="filtered.length > 0; else empty">
+      <thead>
+        <tr>
+          <th>Technicien</th>
+          <th>Email</th>
+          <th>Spécialité</th>
+          <th>Téléphone</th>
+          <th>Disponibilité</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of filtered">
+          <td>
+            <div class="tech-identity">
+              <div class="tech-avatar">{{ getInitials(t) }}</div>
+              <span>{{ t.firstname }} {{ t.lastname }}</span>
+            </div>
+          </td>
+          <td class="text-muted">{{ t.email }}</td>
+          <td>
+            <span class="badge badge-info" *ngIf="t.specialite">{{ t.specialite }}</span>
+            <span class="text-muted" *ngIf="!t.specialite">—</span>
+          </td>
+          <td class="text-muted">{{ t.phone || '—' }}</td>
+          <td>
+            <span class="badge" [class.badge-success]="t.disponible" [class.badge-muted]="!t.disponible">
+              {{ t.disponible ? 'Disponible' : 'Occupé' }}
+            </span>
+          </td>
+          <td>
+            <button type="button" class="btn-text" (click)="openEdit(t)">✏️ Modifier</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #empty>
+      <div class="empty-state">
+        <p>Aucun technicien trouvé.</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- MODAL AJOUTER -->
+  <div class="modal-overlay" *ngIf="showAddModal" (click)="showAddModal=false;errorMsg=''">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Ajouter un technicien</h3>
+        <button type="button" class="close-btn" (click)="showAddModal=false;errorMsg=''">✕</button>
+      </div>
+      <div *ngIf="errorMsg" class="error-banner">⚠️ {{ errorMsg }}</div>
+      <div class="form-row">
+        <div class="form-group"><label>Prénom *</label><input [(ngModel)]="form.firstname" placeholder="Jean"></div>
+        <div class="form-group"><label>Nom *</label><input [(ngModel)]="form.lastname" placeholder="Dupont"></div>
+      </div>
+      <div class="form-group"><label>Email *</label><input type="email" [(ngModel)]="form.email" placeholder="jean.dupont@autoloc.fr"></div>
+      <div class="form-group"><label>Mot de passe *</label><input type="password" [(ngModel)]="form.password" placeholder="Minimum 6 caractères"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Spécialité *</label><input [(ngModel)]="form.specialite" placeholder="Mécanique, Carrosserie..."></div>
+        <div class="form-group"><label>Téléphone</label><input type="tel" [(ngModel)]="form.phone" placeholder="06 12 34 56 78"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="showAddModal=false;errorMsg=''">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="ajouter()" [disabled]="saving">
+          {{ saving ? 'Enregistrement...' : '➕ Ajouter' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MODIFIER -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="showEditModal=false;errorMsg=''">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Modifier — {{ selected?.firstname }} {{ selected?.lastname }}</h3>
+        <button type="button" class="close-btn" (click)="showEditModal=false;errorMsg=''">✕</button>
+      </div>
+      <div *ngIf="errorMsg" class="error-banner">⚠️ {{ errorMsg }}</div>
+      <div class="form-row">
+        <div class="form-group"><label>Prénom</label><input [(ngModel)]="form.firstname"></div>
+        <div class="form-group"><label>Nom</label><input [(ngModel)]="form.lastname"></div>
+      </div>
+      <div class="form-group"><label>Email</label><input type="email" [(ngModel)]="form.email"></div>
+      <div class="form-group">
+        <label>Nouveau mot de passe <span class="text-muted" style="font-weight:400">(laisser vide pour conserver)</span></label>
+        <input type="password" [(ngModel)]="form.password" placeholder="••••••••">
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Spécialité</label><input [(ngModel)]="form.specialite"></div>
+        <div class="form-group"><label>Téléphone</label><input type="tel" [(ngModel)]="form.phone"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="showEditModal=false;errorMsg=''">Annuler</button>
+        <button type="button" class="btn btn-danger" (click)="supprimer()" [disabled]="saving">🗑️ Supprimer</button>
+        <button type="button" class="btn btn-primary" (click)="modifier()" [disabled]="saving">
+          {{ saving ? 'Enregistrement...' : '💾 Enregistrer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

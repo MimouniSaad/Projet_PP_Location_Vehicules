@@ -15,8 +15,8 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "id")
 public class Client extends User {
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "permis_numero", referencedColumnName = "numero")
+    @OneToOne(cascade = CascadeType.ALL, optional = true)
+    @JoinColumn(name = "permis_numero", referencedColumnName = "numero", nullable = true)
     private PermisConduire permisConduire;
 
     @Enumerated(EnumType.STRING)

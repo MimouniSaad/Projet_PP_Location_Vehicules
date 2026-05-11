@@ -66,8 +66,8 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Réservation introuvable"));
 
-        if (reservation.getStatutReservation() == statutReservation.EN_ATTENTE ||
-                reservation.getStatutReservation() == statutReservation.TERMINEE) {
+        if (reservation.getStatutReservation() != statutReservation.EN_ATTENTE &&
+                reservation.getStatutReservation() != statutReservation.CONFIRMEE) {
             throw new RuntimeException("Impossible d'annuler une réservation " +
                     reservation.getStatutReservation());
         }
@@ -163,15 +163,24 @@ public class ReservationService {
 
     // MAPPER entité → DTO
     private ReservationResponse mapToResponse(Reservation r) {
+        String clientNom = r.getClient() != null
+                ? r.getClient().getFirstname() + " " + r.getClient().getLastname()
+                : null;
         return ReservationResponse.builder()
                 .id(r.getId())
-                .clientId(r.getClient().getId())
-                .vehiculeId(r.getVehicule().getId())
+                .clientId(r.getClient() != null ? r.getClient().getId() : null)
+                .clientNom(clientNom)
+                .vehiculeId(r.getVehicule() != null ? r.getVehicule().getId() : null)
+                .vehiculeMarque(r.getVehicule() != null ? r.getVehicule().getMarque() : null)
+                .vehiculeModele(r.getVehicule() != null ? r.getVehicule().getModele() : null)
+                .immatriculation(r.getVehicule() != null ? r.getVehicule().getImmatriculation() : null)
                 .dateDebut(r.getDateDebut())
                 .dateFin(r.getDateFin())
                 .montant(r.getMontant())
+                .caution(r.getVehicule() != null ? r.getVehicule().getCaution() : 0)
                 .statut(r.getStatutReservation())
                 .dateCreation(r.getDateCreation())
+                .dateRetour(r.getDateRetour())
                 .build();
     }
 }

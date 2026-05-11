@@ -21,7 +21,7 @@
       <tbody>
         <tr *ngFor="let o of ordres">
           <td style="color:var(--text-muted)">#{{ o.id }}</td>
-          <td>{{ o.vehiculeMarque }} {{ o.vehiculeModele }} ({{ o.immatriculation }})</td>
+          <td>{{ o.vehiculeMarque }} {{ o.vehiculeModele }} ({{ o.vehiculeImmatriculation }})</td>
           <td>{{ o.typeReparation }}</td>
           <td [style.color]="!o.technicienNom ? 'var(--danger)' : ''">{{ o.technicienNom || 'Non assigné' }}</td>
           <td><span class="badge" [ngClass]="getStatutClass(o.statut)">{{ getStatutLabel(o.statut) }}</span></td>
@@ -39,9 +39,9 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header"><h3>Créer un ordre de maintenance</h3><button class="close-btn" (click)="showCreateModal=false">✕</button></div>
       <div class="form-group"><label>Véhicule</label>
-        <select [(ngModel)]="newOrdre.vehiculeId">
-          <option value="0">Sélectionner...</option>
-          <option *ngFor="let v of vehicules" [value]="v.id">{{ v.marque }} {{ v.modele }} ({{ v.immatriculation }})</option>
+        <select [(ngModel)]="newOrdre.vehiculeImmatriculation">
+          <option value="">Sélectionner...</option>
+          <option *ngFor="let v of vehicules" [value]="v.immatriculation">{{ v.marque }} {{ v.modele }} ({{ v.immatriculation }})</option>
         </select>
       </div>
       <div class="form-group"><label>Type de panne</label>
@@ -53,8 +53,8 @@
       <div class="form-group"><label>Description</label><textarea [(ngModel)]="newOrdre.description" rows="3" placeholder="Décrivez le problème..."></textarea></div>
       <div class="form-group"><label>Assigner à (optionnel)</label>
         <select [(ngModel)]="newOrdre.technicienId">
-          <option value="0">Non assigné pour l'instant</option>
-          <option *ngFor="let t of techniciens" [value]="t.id">{{ t.firstname }} {{ t.lastname }}</option>
+          <option [ngValue]="null">Non assigné pour l'instant</option>
+          <option *ngFor="let t of techniciens" [ngValue]="t.id">{{ t.firstname }} {{ t.lastname }}</option>
         </select>
       </div>
       <div class="modal-footer"><button class="btn btn-outline" (click)="showCreateModal=false">Annuler</button><button class="btn btn-primary" (click)="creerOrdre()">🔧 Créer l'ordre</button></div>
@@ -66,7 +66,7 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header"><h3>Assigner un mécanicien</h3><button class="close-btn" (click)="showAssignModal=false">✕</button></div>
       <div class="ordre-info">
-        <p>Véhicule : <strong>{{ selectedOrdre?.vehiculeMarque }} {{ selectedOrdre?.vehiculeModele }} ({{ selectedOrdre?.immatriculation }})</strong></p>
+        <p>Véhicule : <strong>{{ selectedOrdre?.vehiculeMarque }} {{ selectedOrdre?.vehiculeModele }} ({{ selectedOrdre?.vehiculeImmatriculation }})</strong></p>
         <p>Panne : <strong>{{ selectedOrdre?.typeReparation }}</strong></p>
       </div>
       <div class="tech-list">

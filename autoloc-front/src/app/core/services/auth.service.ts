@@ -25,6 +25,10 @@ export class AuthService {
     );
   }
 
+  createAdmin(data: { firstname: string; lastname: string; email: string; password: string }): Observable<string> {
+    return this.http.post(`${this.apiUrl}/admin`, data, { responseType: 'text' });
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

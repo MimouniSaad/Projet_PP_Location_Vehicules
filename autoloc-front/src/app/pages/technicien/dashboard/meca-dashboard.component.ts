@@ -30,6 +30,21 @@ export class MecaDashboardComponent implements OnInit {
   get actifs(): number { return this.ordres.filter(o => ['ASSIGNE','EN_COURS'].includes(o.statut)).length; }
   get resolus(): number { return this.ordres.filter(o => o.statut === 'RESOLU').length; }
 
+  cloturer(o: OrdreMaintenance): void {
+    const coutStr = prompt('Coût réel de la réparation (€) :');
+    if (coutStr === null) return;
+    const cout = parseFloat(coutStr);
+    if (isNaN(cout)) return;
+    this.maintenanceService.cloturerParTechnicien(this.auth.userId, o.id, cout).subscribe({
+      next: (updated) => {
+        const i = this.ordres.findIndex(x => x.id === updated.id);
+        if (i >= 0) this.ordres[i] = updated;
+        this.ordresEnCours = this.ordres.filter(x => x.statut === 'EN_COURS');
+      },
+      error: () => {}
+    });
+  }
+
   getStatutClass(s: string): string {
     const m: Record<string,string> = { SIGNALE:'badge-danger', ASSIGNE:'badge-warning', EN_COURS:'badge-info', RESOLU:'badge-success' };
     return m[s] || 'badge-muted';

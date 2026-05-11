@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * MaintenanceController — basé sur MaintenanceService.java
  *
@@ -21,6 +23,12 @@ import org.springframework.web.bind.annotation.*;
 public class MaintenanceController {
 
     private final MaintenanceService maintenanceService;
+
+    // ─── GET — tous les ordres ────────────────────────────────────────────
+    @GetMapping
+    public ResponseEntity<List<MaintenanceResponse>> getAll() {
+        return ResponseEntity.ok(maintenanceService.getAll());
+    }
 
     // ─── POST — declencherMaintenance ─────────────────────────────────────
     // L'admin signale une panne sur un véhicule via son immatriculation

@@ -1,0 +1,1 @@
+ALTER TABLE client MODIFY COLUMN permis_numero VARCHAR(255) NULL;

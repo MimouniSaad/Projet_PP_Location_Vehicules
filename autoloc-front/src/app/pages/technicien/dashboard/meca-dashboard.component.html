@@ -23,11 +23,11 @@
           <thead><tr><th>VÉHICULE</th><th>TYPE</th><th>STATUT</th><th>DATE</th><th></th></tr></thead>
           <tbody>
             <tr *ngFor="let o of ordresEnCours">
-              <td>{{ o.vehiculeMarque }} {{ o.vehiculeModele }} ({{ o.immatriculation }})</td>
+              <td>{{ o.vehiculeMarque }} {{ o.vehiculeModele }} ({{ o.vehiculeImmatriculation }})</td>
               <td>{{ o.typeReparation }}</td>
               <td><span class="badge" [ngClass]="getStatutClass(o.statut)">{{ getStatutLabel(o.statut) }}</span></td>
               <td>{{ o.dateSignal | date:'dd/MM/yyyy' }}</td>
-              <td><button class="btn btn-success btn-sm">✓ Clôturer</button></td>
+              <td><button class="btn btn-success btn-sm" (click)="cloturer(o)">✓ Clôturer</button></td>
             </tr>
             <tr *ngIf="ordresEnCours.length===0">
               <td colspan="5" style="text-align:center;color:var(--text-muted)">Aucun ordre en cours</td>
@@ -39,9 +39,9 @@
 
     <div class="card recap">
       <h3>Récapitulatif</h3>
-      <div class="recap-item"><span>Signalés non assignés</span><span class="count danger">2</span></div>
-      <div class="recap-item"><span>En cours aujourd'hui</span><span class="count info">{{ ordresEnCours.length }}</span></div>
-      <div class="recap-item"><span>Résolus cette semaine</span><span class="count success">3</span></div>
+      <div class="recap-item"><span>Assignés</span><span class="count danger">{{ ordres.length - ordresEnCours.length - resolus }}</span></div>
+      <div class="recap-item"><span>En cours</span><span class="count info">{{ ordresEnCours.length }}</span></div>
+      <div class="recap-item"><span>Résolus</span><span class="count success">{{ resolus }}</span></div>
     </div>
   </div>
 </div>

@@ -26,7 +26,7 @@ export class LoginComponent {
       next: (res) => {
         if (res.role === 'CLIENT') this.router.navigate(['/client/dashboard']);
         else if (['ADMIN','SUPER_ADMIN'].includes(res.role)) this.router.navigate(['/admin/dashboard']);
-        else if (res.role === 'Technicien') this.router.navigate(['/mecanicien/dashboard']);
+        else if (res.role === 'Technicien') this.router.navigate(['/technicien/dashboard']);
       },
       error: () => { this.error = 'Email ou mot de passe incorrect.'; this.loading = false; }
     });

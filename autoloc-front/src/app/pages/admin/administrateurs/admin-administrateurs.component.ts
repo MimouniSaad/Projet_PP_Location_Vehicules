@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   standalone: true,
@@ -12,14 +13,41 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class AdminAdministrateursComponent {
   showModal = false;
-  admins = [
-    { id: 1, firstname: 'Pierre', lastname: 'Leclerc', email: 'admin@autoloc.fr', niveau: 'Admin Standard', actif: true, creeLe: '01/01/2025' },
-    { id: 2, firstname: 'Marie', lastname: 'Fontaine', email: 'marie.f@autoloc.fr', niveau: 'Admin Standard', actif: true, creeLe: '15/02/2025' },
-    { id: 3, firstname: 'SUPER', lastname: 'ADMIN', email: 'superadmin@autoloc.fr', niveau: 'Super Admin', actif: true, creeLe: '01/01/2025' }
-  ];
-  newAdmin = { firstname: '', lastname: '', email: '', password: '', niveau: 'ADMIN' };
+  loading = false;
+  success = '';
+  error = '';
 
-  creer(): void { this.showModal = false; }
+  newAdmin = { firstname: '', lastname: '', email: '', password: '' };
+
+  constructor(public auth: AuthService) {}
+
+  creer(): void {
+    if (!this.newAdmin.firstname || !this.newAdmin.lastname || !this.newAdmin.email || !this.newAdmin.password) {
+      this.error = 'Tous les champs sont obligatoires.';
+      return;
+    }
+    this.loading = true;
+    this.error = '';
+    this.success = '';
+
+    this.auth.createAdmin(this.newAdmin).subscribe({
+      next: () => {
+        this.success = `Compte administrateur créé pour ${this.newAdmin.email}.`;
+        this.newAdmin = { firstname: '', lastname: '', email: '', password: '' };
+        this.showModal = false;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err?.error || 'Erreur lors de la création du compte.';
+        this.loading = false;
+      }
+    });
+  }
+
+  openModal(): void {
+    this.error = '';
+    this.success = '';
+    this.newAdmin = { firstname: '', lastname: '', email: '', password: '' };
+    this.showModal = true;
+  }
 }
-
-
