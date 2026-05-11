@@ -23,7 +23,8 @@ export class AdminMaintenanceComponent implements OnInit {
   showCreateModal = false;
   showAssignModal = false;
   selectedOrdre: OrdreMaintenance | null = null;
-  newOrdre = { vehiculeId: 0, typeReparation: '', description: '', technicienId: 0 };
+  newOrdre: { vehiculeImmatriculation: string; typeReparation: string; description: string; technicienId: number | null } =
+    { vehiculeImmatriculation: '', typeReparation: '', description: '', technicienId: null };
   typesPanne = ['Moteur','Freins','Carrosserie','Électrique','Pneus','Climatisation','Transmission'];
 
   constructor(private maintenanceService: MaintenanceService, private userService: UserService, private vehiculeService: VehiculeService) {}
@@ -35,7 +36,20 @@ export class AdminMaintenanceComponent implements OnInit {
   }
 
   creerOrdre(): void {
-    this.maintenanceService.create(this.newOrdre).subscribe({ next: (o) => { this.ordres.push(o); this.showCreateModal = false; }, error: () => {} });
+    const payload = {
+      vehiculeImmatriculation: this.newOrdre.vehiculeImmatriculation,
+      typeReparation: this.newOrdre.typeReparation,
+      description: this.newOrdre.description || undefined,
+      technicienId: this.newOrdre.technicienId || null
+    };
+    this.maintenanceService.create(payload).subscribe({
+      next: (o) => {
+        this.ordres.push(o);
+        this.showCreateModal = false;
+        this.newOrdre = { vehiculeImmatriculation: '', typeReparation: '', description: '', technicienId: null };
+      },
+      error: () => {}
+    });
   }
 
   openAssign(o: OrdreMaintenance): void { this.selectedOrdre = o; this.showAssignModal = true; }

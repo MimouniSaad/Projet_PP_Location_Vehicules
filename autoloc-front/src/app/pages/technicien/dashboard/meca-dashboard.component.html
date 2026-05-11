@@ -23,7 +23,7 @@
           <thead><tr><th>VÉHICULE</th><th>TYPE</th><th>STATUT</th><th>DATE</th><th></th></tr></thead>
           <tbody>
             <tr *ngFor="let o of ordresEnCours">
-              <td>{{ o.vehiculeMarque }} {{ o.vehiculeModele }} ({{ o.immatriculation }})</td>
+              <td>{{ o.vehiculeMarque }} {{ o.vehiculeModele }} ({{ o.vehiculeImmatriculation }})</td>
               <td>{{ o.typeReparation }}</td>
               <td><span class="badge" [ngClass]="getStatutClass(o.statut)">{{ getStatutLabel(o.statut) }}</span></td>
               <td>{{ o.dateSignal | date:'dd/MM/yyyy' }}</td>

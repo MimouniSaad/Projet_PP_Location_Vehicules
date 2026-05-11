@@ -42,6 +42,13 @@ public class MaintenanceService {
     private final VehiculeRepository    vehiculeRepository;
     private final TechnicienRepository  technicienRepository;
 
+    // ─── getAll ───────────────────────────────────────────────────────────
+    public List<MaintenanceResponse> getAll() {
+        return maintenanceRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     // ─── declencherMaintenance ────────────────────────────────────────────
 
     /**

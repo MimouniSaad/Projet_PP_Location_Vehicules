@@ -23,7 +23,7 @@ public class TechnicienController {
 
     // ─── POST — creerTechnicien (Admin) ──────────────────
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<TechnicienResponse> creer(
             @RequestBody @Valid TechnicienRequest request) {
         return ResponseEntity
@@ -33,7 +33,7 @@ public class TechnicienController {
 
     // ─── PUT — modifierTechnicien (Admin) ────────────────
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<TechnicienResponse> modifier(
             @PathVariable Long id,
             @RequestBody @Valid TechnicienRequest request) {
@@ -42,7 +42,7 @@ public class TechnicienController {
 
     // ─── DELETE — supprimerTechnicien (Admin) ────────────
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Void> supprimer(@PathVariable Long id) {
         technicienService.supprimerTechnicien(id);
         return ResponseEntity.noContent().build();
@@ -50,28 +50,35 @@ public class TechnicienController {
 
     // ─── GET — findAll (Admin) ────────────────────────────
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<List<TechnicienResponse>> getAll() {
         return ResponseEntity.ok(technicienService.findAll());
     }
 
     // ─── GET — findById (Admin, Technicien) ──────────────
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIEN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'Technicien')")
     public ResponseEntity<TechnicienResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(technicienService.findById(id));
     }
 
     // ─── GET — findDisponibles (Admin) ───────────────────
     @GetMapping("/disponibles")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<List<TechnicienResponse>> getDisponibles() {
         return ResponseEntity.ok(technicienService.findDisponibles());
     }
 
+    // ─── GET — ordres du technicien ──────────────────────
+    @GetMapping("/{id}/ordres")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'Technicien')")
+    public ResponseEntity<List<MaintenanceResponse>> getOrdres(@PathVariable Long id) {
+        return ResponseEntity.ok(technicienService.getOrdresByTechnicien(id));
+    }
+
     // ─── PATCH — receptionOrdre (Technicien) ─────────────
     @PatchMapping("/{id}/ordres/{ordreId}/reception")
-    @PreAuthorize("hasRole('TECHNICIEN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'Technicien')")
     public ResponseEntity<MaintenanceResponse> receptionOrdre(
             @PathVariable Long id,
             @PathVariable Long ordreId) {
@@ -80,7 +87,7 @@ public class TechnicienController {
 
     // ─── PATCH — demarrerReparation (Technicien) ─────────
     @PatchMapping("/{id}/ordres/{ordreId}/demarrer")
-    @PreAuthorize("hasRole('TECHNICIEN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'Technicien')")
     public ResponseEntity<MaintenanceResponse> demarrerReparation(
             @PathVariable Long id,
             @PathVariable Long ordreId) {
@@ -89,7 +96,7 @@ public class TechnicienController {
 
     // ─── PATCH — cloturerReparation (Technicien) ─────────
     @PatchMapping("/{id}/ordres/{ordreId}/cloturer")
-    @PreAuthorize("hasRole('TECHNICIEN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'Technicien')")
     public ResponseEntity<MaintenanceResponse> cloturerReparation(
             @PathVariable Long id,
             @PathVariable Long ordreId,
@@ -101,7 +108,7 @@ public class TechnicienController {
 
     // ─── PATCH — updateStatus (Admin, Technicien) ────────
     @PatchMapping("/{id}/ordres/{ordreId}/statut")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIEN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'Technicien')")
     public ResponseEntity<MaintenanceResponse> updateStatus(
             @PathVariable Long id,
             @PathVariable Long ordreId,
