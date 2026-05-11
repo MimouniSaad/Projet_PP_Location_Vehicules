@@ -169,8 +169,6 @@ docker compose down
 docker compose down
 ```
 
----
-
 ### Services Docker
 
 | Conteneur | Image | Port |
@@ -179,8 +177,6 @@ docker compose down
 | `spring_boot_app` | Build local | `8080:8080` |
 | `angular_app` | Build local | `80:80` |
 | `phpmyadmin` | `phpmyadmin/phpmyadmin` | `8081:80` |
-
----
 
 ### Volume Docker
 
@@ -194,6 +190,10 @@ docker volume ls
 # Supprimer le volume (remet la BDD à zéro)
 docker volume rm autoloc_mysql_data
 ```
+
+### Publication Docker Hub
+
+https://hub.docker.com/u/rayanehr
 
 ---
 
@@ -368,7 +368,7 @@ POST   /api/clients                 Créer un client           [CLIENT]
 ```
 ---
 
-## 🗄️ Données de test — Flyway SQL
+## Données de test — Flyway SQL
 
 Le projet utilise **Flyway** pour initialiser automatiquement la base de données au démarrage.  
 Le script `V1__create_users.sql` est exécuté automatiquement par Spring Boot.
@@ -433,24 +433,18 @@ INSERT INTO paiement (date_paiement, montant, mode_paiement, statut_paiement, re
 VALUES ('2026-05-01', 300, 'CB', 'CONFIRME', 1);
 ```
 
+---
 
+### Comptes de test
 
+| Rôle | Email | Mot de passe |
+|:---|:---:|:---|
+| `CLIENT` | rayaneadmin@autoloc.fr | rayanerayane
+| `ADMIN` | superadmin@autoloc.fr | Admin@1234
+| `Technicien` | Marouanetech@autoloc.fr | techtech
 
 ---
 
-### 👤 Comptes de test
-
-> Mot de passe pour tous les comptes : **`password123`**
-
-| Rôle | Email |
-|:---:|:---|
-| `CLIENT` | client@autoloc.com |
-| `CLIENT` | client2@autoloc.com |
-| `Technicien` | tech@autoloc.com |
-
----
-
-### Convention Flyway
 
 
 
