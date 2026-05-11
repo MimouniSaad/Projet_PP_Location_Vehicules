@@ -132,7 +132,7 @@ Accédez au **docker_file** : [Docker_File](autoloc/Dockerfile)
 
 ---
 
-## 🚀 Lancer l'application avec Docker Compose
+## 🐳 Lancer l'application avec Docker Compose
 
 ### Prérequis
 - [Docker](https://www.docker.com/get-started) installé
@@ -151,241 +151,65 @@ cd autoloc
 docker-compose up --build
 ```
 
-**3 — Accéder à l'application**
+**3 — Accéder aux services**
 
-| Service | URL |
-|:---|:---|
-| API Backend | `http://localhost:8081` |
-| Frontend Angular | `http://localhost:4200` |
-| Base de données MySQL | `localhost:3306` |
+| Service | URL | Description |
+|:---|:---|:---|
+| 🌐 Frontend Angular | `http://localhost:80` | Interface utilisateur |
+| ⚙️ API Backend | `http://localhost:8080` | API REST Spring Boot |
+| 🗄️ phpMyAdmin | `http://localhost:8081` | Administration base de données |
+| 🔌 MySQL | `localhost:3307` | Base de données (accès direct) |
 
 **4 — Arrêter les services**
 ```bash
 docker-compose down
 ```
 
----
-
-## 🏗️ Architecture du projet
-autoloc/
-├── backend/                          # Spring Boot 4 — Java 17
-│   └── src/main/java/com/autoloc/
-│       ├── controller/               # Endpoints REST
-│       ├── service/                  # Logique métier
-│       ├── repository/               # Accès BDD (Spring Data JPA)
-│       ├── model/                    # Entités JPA (User, Vehicule, etc.)
-│       ├── dto/                      # Objets de transfert (Request/Response)
-│       ├── mapper/                   # MapStruct — conversion entité ↔ DTO
-│       ├── enums/                    # Énumérations (statutVehicule, userRole...)
-│       ├── security/                 # JWT Filter + JwtUtil
-│       ├── config/                   # CorsConfig, SecurityConfig
-│       └── exception/                # Exceptions personnalisées
-│
-├── frontend/                         # Angular 19
-│   └── src/app/
-│       ├── core/                     # Services, Guards, Interceptors, Models
-│       ├── layouts/                  # Client / Admin / Technicien layouts
-│       └── pages/                    # Pages par rôle (public, client, admin, technicien)
-│
-├── docker-compose.yml                # Orchestration des services
-├── Dockerfile                        # Image backend
-└── README.md
-
-### Stack technique
-
-| Couche | Technologie |
-|:---|:---|
-| Backend | Java 17 + Spring Boot 4 |
-| ORM | Hibernate / JPA + MapStruct |
-| Base de données | MySQL 8 |
-| Sécurité | Spring Security + JWT |
-| Frontend | Angular 19 (Standalone) |
-| Conteneurisation | Docker + Docker Compose |
-| Tests | JUnit 5 + Mockito |
-
-### Relations entre entités
-User (abstract)
-├── Client      ──── Reservation ──── Vehicule (abstract)
-│                         └────────── Paiement     ├── Voiture
-├── Admin       ──── OrdreMaintenance              └── Camion
-├── SuperAdmin       └── Technicien
-└── Technicien
-
----
-
-## 🔌 Exemples de routes API REST
-
-### 🔐 Authentification
-
-| Méthode | Route | Description |
-|:---:|:---|:---|
-| `POST` | `/api/auth/login` | Connexion |
-| `POST` | `/api/auth/register` | Inscription client |
-| `POST` | `/api/auth/admin` | Créer un admin (SUPER_ADMIN) |
-
-**POST** `/api/auth/login`
-```json
-// Request
-{
-  "email": "jean.dupont@mail.com",
-  "password": "password123"
-}
-
-// Response
-{
-  "token": "eyJhbGciOiJIUzI1NiJ9...",
-  "role": "CLIENT",
-  "email": "jean.dupont@mail.com"
-}
+**5 — Arrêter et supprimer les données**
+```bash
+docker-compose down -v
 ```
 
 ---
 
-### 🚗 Véhicules
+### 📦 Services Docker
 
-| Méthode | Route | Description | Rôle |
-|:---:|:---|:---|:---:|
-| `GET` | `/api/vehicules` | Liste tous les véhicules | Public |
-| `GET` | `/api/vehicules/{id}` | Détail d'un véhicule | Public |
-| `GET` | `/api/vehicules/voitures` | Liste les voitures | Public |
-| `GET` | `/api/vehicules/camions` | Liste les camions | Public |
-| `GET` | `/api/vehicules/recherche?keyword=peugeot` | Recherche | Public |
-| `POST` | `/api/vehicules` | Ajouter un véhicule | ADMIN |
-| `PUT` | `/api/vehicules/{id}` | Modifier un véhicule | ADMIN |
-| `DELETE` | `/api/vehicules/{id}` | Supprimer un véhicule | ADMIN |
-| `PATCH` | `/api/vehicules/{id}/statut?statut=EN_MAINTENANCE` | Changer statut | ADMIN |
+| Conteneur | Image | Port |
+|:---|:---|:---:|
+| `mysql_db` | `mysql:8.0` | `3307:3306` |
+| `spring_boot_app` | Build local | `8080:8080` |
+| `angular_app` | Build local | `80:80` |
+| `phpmyadmin` | `phpmyadmin/phpmyadmin` | `8081:80` |
 
-**POST** `/api/vehicules`
-```json
-// Request
-{
-  "type": "VOITURE",
-  "marque": "Peugeot",
-  "modele": "308",
-  "immatriculation": "EF-456-GH",
-  "annee": 2021,
-  "prixParJour": 55.00,
-  "caution": 400.00,
-  "typeCarburant": "DIESEL",
-  "typeBoite": "AUTOMATIQUE",
-  "nbPortes": 5,
-  "nbPlaces": 5,
-  "categorie": "BERLINE",
-  "optionIds": [1, 2]
-}
+---
 
-// Response
-{
-  "id": 2,
-  "type": "VOITURE",
-  "marque": "Peugeot",
-  "modele": "308",
-  "immatriculation": "EF-456-GH",
-  "prixParJour": 55.00,
-  "statut": "DISPONIBLE"
-}
+### 💾 Volume Docker
+
+Les données MySQL sont **persistées** dans un volume Docker nommé `mysql_data`.  
+Cela signifie que vos données survivent aux redémarrages des conteneurs.
+
+```bash
+# Voir les volumes existants
+docker volume ls
+
+# Supprimer le volume (remet la BDD à zéro)
+docker volume rm autoloc_mysql_data
 ```
 
 ---
 
-### 📅 Réservations
+### ℹ️ Ordre de démarrage
 
-| Méthode | Route | Description | Rôle |
-|:---:|:---|:---|:---:|
-| `GET` | `/api/reservations` | Liste toutes les réservations | ADMIN |
-| `GET` | `/api/reservations/{id}` | Détail d'une réservation | ADMIN |
-| `GET` | `/api/reservations/client/{clientId}` | Réservations d'un client | CLIENT |
-| `POST` | `/api/reservations/client/{clientId}` | Créer une réservation | CLIENT |
-| `PUT` | `/api/reservations/{id}/valider` | Valider une réservation | ADMIN |
-| `PUT` | `/api/reservations/{id}/refuser` | Refuser une réservation | ADMIN |
+Les services démarrent dans cet ordre grâce aux `depends_on` et `healthcheck` :
 
-**POST** `/api/reservations/client/1`
-```json
-// Request
-{
-  "vehiculeId": 1,
-  "dateDebut": "2025-06-01",
-  "dateFin": "2025-06-05"
-}
 
-// Response
-{
-  "id": 1,
-  "clientId": 1,
-  "vehiculeId": 1,
-  "dateDebut": "2025-06-01",
-  "dateFin": "2025-06-05",
-  "montant": 180.00,
-  "statut": "EN_ATTENTE"
-}
-```
+mysql_db (healthcheck OK)
+↓
+spring_boot_app + phpmyadmin
+↓
+angular_app
 
----
-
-### 💳 Paiements
-
-| Méthode | Route | Description | Rôle |
-|:---:|:---|:---|:---:|
-| `POST` | `/api/paiements/{reservationId}` | Effectuer un paiement | CLIENT |
-| `GET` | `/api/paiements/{id}` | Détail d'un paiement | ADMIN |
-| `PUT` | `/api/paiements/{id}/rembourser` | Rembourser | ADMIN |
-
-**POST** `/api/paiements/1`
-```json
-// Request
-{
-  "montant": 180.00,
-  "modePaiement": "CB"
-}
-
-// Response
-{
-  "id": 1,
-  "montant": 180.00,
-  "modePaiement": "CB",
-  "statut": "CONFIRME",
-  "datePaiement": "2025-05-11"
-}
-```
-
----
-
-### 🔧 Maintenance
-
-| Méthode | Route | Description | Rôle |
-|:---:|:---|:---|:---:|
-| `POST` | `/api/maintenance/declencher` | Déclencher une maintenance | ADMIN |
-| `PUT` | `/api/maintenance/{id}/assigner/{techId}` | Assigner un technicien | ADMIN |
-| `PUT` | `/api/maintenance/{id}/resoudre` | Résoudre un ordre | ADMIN |
-| `PUT` | `/api/maintenance/{id}/cloturer` | Clôturer un ordre | ADMIN |
-
----
-
-### 👥 Clients & Techniciens
-
-| Méthode | Route | Description | Rôle |
-|:---:|:---|:---|:---:|
-| `GET` | `/api/clients` | Liste tous les clients | ADMIN |
-| `GET` | `/api/clients/{id}` | Détail d'un client | ADMIN |
-| `DELETE` | `/api/clients/{id}` | Supprimer un client | ADMIN |
-| `GET` | `/api/techniciens` | Liste tous les techniciens | ADMIN |
-| `POST` | `/api/techniciens` | Créer un technicien | ADMIN |
-| `GET` | `/api/techniciens/disponibles` | Techniciens disponibles | ADMIN |
-
----
-
-## 👤 Utilisateurs de test
-
-> Mot de passe pour tous les comptes : `password123`
-
-| Rôle | Email | Accès |
-|:---:|:---|:---|
-| `CLIENT` | jean.dupont@mail.com | Pages client |
-| `CLIENT` | marie.martin@mail.com | Pages client |
-| `ADMIN` | admin@autoloc.com | Dashboard admin |
-| `SUPER_ADMIN` | superadmin@autoloc.com | Gestion admins |
-| `Technicien` | karim.mecano@autoloc.com | Dashboard technicien |
-
+> Le backend attend que MySQL soit **complètement prêt** avant de démarrer, évitant les erreurs de connexion au lancement.
 
 
 ---
