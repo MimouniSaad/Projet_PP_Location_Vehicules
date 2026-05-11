@@ -193,7 +193,41 @@ docker volume rm autoloc_mysql_data
 
 ### Publication Docker Hub
 
-https://hub.docker.com/u/rayanehr
+Les images Docker du projet sont disponibles publiquement sur Docker Hub : [hub.docker.com/u/rayanehr](https://hub.docker.com/u/rayanehr)
+
+| Service | Image |
+|:---|:---|
+| Backend | [`rayanehr/projet_pp_location_vehicules-backend`](https://hub.docker.com/r/rayanehr/projet_pp_location_vehicules-backend) |
+| Frontend | [`rayanehr/projet_pp_location_vehicules-frontend`](https://hub.docker.com/r/rayanehr/projet_pp_location_vehicules-frontend) |
+
+### Construction des images
+
+```bash
+# 1 Build images (Front & Back)
+docker build -t rayanehr/projet_pp_location_vehicules-backend:latest ./autoloc
+docker build -t rayanehr/projet_pp_location_vehicules-frontend:latest ./autoloc-front
+
+# 2 Se connecter à Docker Hub
+docker login
+
+# 3 Push images
+docker push rayanehr/projet_pp_location_vehicules-backend:latest
+docker push rayanehr/projet_pp_location_vehicules-frontend:latest
+```
+
+### Récupération des images en local
+
+```bash
+# Backend
+docker pull rayanehr/projet_pp_location_vehicules-backend:latest
+docker run -p 8080:8080 rayanehr/projet_pp_location_vehicules-backend:latest
+```
+
+```bash
+# Frontend
+docker pull rayanehr/projet_pp_location_vehicules-frontend:latest
+docker run -p 80:80 rayanehr/projet_pp_location_vehicules-frontend:latest
+```
 
 ---
 
@@ -205,7 +239,7 @@ https://hub.docker.com/u/rayanehr
 
 | Couche | Responsabilité |
 |:---|:---|
-| `**Controller**` | Reçoit la requête HTTP, valide le DTO, appelle le Service, retourne `ResponseEntity` |
+| **`Controller`** | Reçoit la requête HTTP, valide le DTO, appelle le Service, retourne `ResponseEntity` |
 | **Service** | Logique métier complète : règles, calculs, coordination des Repositories |
 | **Repository** | Unique point de contact avec la BDD — requêtes JPA/Hibernate |
 | **Mapper** | Conversion Entité ↔ DTO via MapStruct (zéro boilerplate) |
@@ -344,28 +378,81 @@ autoloc/
 └── VehiculeServiceTest.java
 ```
 
-### Endpoints REST principaux
+---
+
+## Endpoints REST principaux
 
 ```
 POST   /api/auth/register           Inscription client
 POST   /api/auth/login              Connexion → JWT
+POST   /api/auth/admin              Créer un compte admin
 
-GET    /api/vehicules               Liste des véhicules (public)
+GET    /api/vehicules               Liste les véhicules
 POST   /api/vehicules               Ajouter un véhicule       [ADMIN]
 PUT    /api/vehicules/{id}          Modifier un véhicule      [ADMIN]
 DELETE /api/vehicules/{id}          Supprimer un véhicule     [ADMIN]
 
-POST   /api/reservations            Créer une réservation     [CLIENT]
-PATCH  /api/reservations/{id}/valider   Valider              [ADMIN]
-PATCH  /api/reservations/{id}/refuser   Refuser              [ADMIN]
-PATCH  /api/reservations/{id}/retour    Enregistrer retour   [ADMIN]
+POST   /api/reservations                Créer une réservation      [CLIENT]
+GET    /api/reservations                Lister les réservations    [ADMIN]
+
+PATCH  /api/reservations/{id}/valider   Valider                    [ADMIN]
+PATCH  /api/reservations/{id}/refuser   Refuser                    [ADMIN]
+PATCH  /api/reservations/{id}/retour    Enregistrer retour         [ADMIN]
 
 POST   /api/maintenance             Créer ordre maintenance   [ADMIN]
-PATCH  /api/maintenance/{id}/cloturer  Clôturer réparation   [MECANICIEN]
 
 GET    /api/clients                 Liste des clients         [CLIENT]
 POST   /api/clients                 Créer un client           [CLIENT]
 ```
+
+## Tests des endpoints
+
+Les endpoints ont été testés directement via le **frontend Angular**, en conditions réelles d'utilisation.
+
+| Scénario testé |
+|:---|
+| Inscription d'un nouveau client |
+| Connexion et récupération du token JWT |
+| Affichage du catalogue véhicules |
+| Création d'une réservation |
+| Annulation d'une réservation |
+| Ajout d'un véhicule |
+| Déclenchement d'une maintenance |
+| Assignation d'un technicien |
+
+---
+
+## Tests unitaires
+
+### Outils utilisés
+
+| Outil | Rôle |
+|:---|:---|
+| **JUnit 5** | Framework de tests — structure et exécution des tests |
+| **Mockito** | Simulation des dépendances (Repository, JwtUtil, PasswordEncoder...) |
+
+### Lancement des tests
+
+### Couverture des tests
+
+| Fichier de test | Nb tests | Cas testés |
+|:---|:---:|:---|
+| `AuthServiceTest` | 3 | Login réussi, utilisateur introuvable, mauvais mot de passe |
+| `VehiculeServiceTest` | 6 | findById, findAll, suppression LOUE/EN_MAINTENANCE, changerStatut, introuvable |
+| `ReservationServiceTest` | 7 | Création, véhicule déjà réservé, valider, valider non EN_ATTENTE, refuser, findAll, getByClient |
+| `MaintenanceServiceTest` | 7 | Déclencher, assigner, technicien non disponible, ordre non SIGNALE, résoudre, résoudre non EN_COURS, clôturer |
+| `PaiementServiceTest` | 6 | Effectuer paiement, réservation non confirmée, déjà payée, rembourser, rembourser non confirmé, getPaiement introuvable |
+| `TechnicienServiceTest` | 7 | Créer, email déjà utilisé, supprimer, supprimer avec ordres EN_COURS, introuvable, findAll, findDisponibles |
+| `NotificationServiceTest` | 4 | Envoyer, utilisateur introuvable, findByUtilisateurId, liste vide |
+
+
+### Rôle des tests unitaires dans le projet
+
+Rôles des tests unitaires :
+
+- **Vérifier la logique métier** — chaque règle est testée indépendamment
+- **Détecter les régressions** — si une modification casse une fonctionnalité existante, le test échoue immédiatement
+
 ---
 
 ## Données de test — Flyway SQL
@@ -444,20 +531,6 @@ VALUES ('2026-05-01', 300, 'CB', 'CONFIRME', 1);
 | `Technicien` | Marouanetech@autoloc.fr | techtech
 
 ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
