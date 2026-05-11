@@ -50,6 +50,8 @@ class ReservationServiceTest {
         voiture.setMarque("Peugeot");
         voiture.setModele("308");
         voiture.setPrixParJour(55.0);
+        voiture.setCaution(400.0);       // ← ajouter cette ligne
+        voiture.setImmatriculation("AB-123-CD");  // ← ajouter aussi
         voiture.setOptions(new ArrayList<>());
 
         reservation = new Reservation();
