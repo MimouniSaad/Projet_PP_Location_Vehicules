@@ -422,14 +422,6 @@ Les endpoints ont été testés directement via le **frontend Angular**, en cond
 
 ---
 
-## Données de test — DataInitilizer SQL
-
-Le projet utilise DataInitilizer.  
-Le script `` est exécuté automatiquement par Spring Boot.
-
-Ainsi lors du lancement des images **Docker**, des données seront insérées automatiquement dans la base.
-
-Pour accéder aux tests SQL : [Scripts SQL](autoloc/src/main/resources/db/migration/V1__create_users.sql)
 
 ### Données insérées automatiquement
 
