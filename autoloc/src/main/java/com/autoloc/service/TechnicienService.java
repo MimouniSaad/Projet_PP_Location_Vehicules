@@ -175,6 +175,15 @@ public class TechnicienService {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
+    // ─── getOrdresByTechnicien ────────────────────────────
+    @Transactional(readOnly = true)
+    public List<MaintenanceResponse> getOrdresByTechnicien(Long technicienId) {
+        return maintenanceRepository.findByTechnicienId(technicienId)
+                .stream()
+                .map(this::toMaintenanceResponse)
+                .collect(Collectors.toList());
+    }
     // ─── toResponse ──────────────────────────────────────────────────────
 
     public TechnicienResponse toResponse(Technicien technicien) {

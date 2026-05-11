@@ -1,11 +1,12 @@
 export interface OrdreMaintenance {
   id: number;
-  vehiculeId: number;
+  vehiculeId?: number;
   vehiculeMarque?: string;
   vehiculeModele?: string;
-  immatriculation?: string;
+  vehiculeImmatriculation?: string;
   technicienId?: number;
   technicienNom?: string;
+  technicienPrenom?: string;
   typeReparation: string;
   description?: string;
   statut: 'SIGNALE' | 'ASSIGNE' | 'EN_COURS' | 'RESOLU' | 'ABANDONNE';
@@ -15,8 +16,8 @@ export interface OrdreMaintenance {
 }
 
 export interface MaintenanceRequest {
-  vehiculeId: number;
+  vehiculeImmatriculation: string;
   typeReparation: string;
   description?: string;
-  technicienId?: number;
+  technicienId?: number | null;
 }
