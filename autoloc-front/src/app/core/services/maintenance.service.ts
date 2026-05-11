@@ -11,7 +11,7 @@ export class MaintenanceService {
   getAll(): Observable<OrdreMaintenance[]> { return this.http.get<OrdreMaintenance[]>(this.apiUrl); }
   getById(id: number): Observable<OrdreMaintenance> { return this.http.get<OrdreMaintenance>(`${this.apiUrl}/${id}`); }
   getByTechnicien(techId: number): Observable<OrdreMaintenance[]> {
-    return this.http.get<OrdreMaintenance[]>(`${this.apiUrl}/technicien/${techId}`);
+    return this.http.get<OrdreMaintenance[]>(`/api/techniciens/${techId}/ordres`);
   }
   create(data: MaintenanceRequest): Observable<OrdreMaintenance> { return this.http.post<OrdreMaintenance>(this.apiUrl, data); }
   assigner(id: number, technicienId: number): Observable<OrdreMaintenance> {
@@ -22,5 +22,13 @@ export class MaintenanceService {
   }
   cloturer(id: number): Observable<OrdreMaintenance> {
     return this.http.patch<OrdreMaintenance>(`${this.apiUrl}/${id}/cloturer`, {});
+  }
+
+  demarrerReparation(techId: number, ordreId: number): Observable<OrdreMaintenance> {
+    return this.http.patch<OrdreMaintenance>(`/api/techniciens/${techId}/ordres/${ordreId}/demarrer`, {});
+  }
+
+  cloturerParTechnicien(techId: number, ordreId: number, coutReel: number): Observable<OrdreMaintenance> {
+    return this.http.patch<OrdreMaintenance>(`/api/techniciens/${techId}/ordres/${ordreId}/cloturer?coutReel=${coutReel}`, {});
   }
 }

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { RouterLink } from '@angular/router';
+import { VehiculeService } from '../../../core/services/vehicule.service';
+import { Vehicule } from '../../../core/models/vehicule.model';
 
 @Component({
   selector: 'app-landing',
@@ -11,29 +12,45 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss']
 })
-export class LandingComponent {
-  constructor(private router: Router, private auth: AuthService) {}
+export class LandingComponent implements OnInit {
+  vehicules: Vehicule[] = [];
+  loading = true;
+  searchKeyword = '';
+  filtreType: 'TOUS' | 'VOITURE' | 'CAMION' = 'TOUS';
 
-  loginDemo(role: string): void {
-    const credentials: Record<string, { email: string; password: string }> = {
-      client: { email: 'sophie.martin@gmail.com', password: 'password123' },
-      admin:  { email: 'admin@autoloc.fr',        password: 'password123' },
-      super:  { email: 'superadmin@autoloc.fr',   password: 'password123' },
-      meca:   { email: 'marc.tech@autoloc.fr',    password: 'password123' }
-    };
-    const cred = credentials[role];
-    if (!cred) return;
-    this.auth.login(cred).subscribe({
-      next: (response) => {
-        if (response.role === 'CLIENT') this.router.navigate(['/client/dashboard']);
-        else if (['ADMIN','SUPER_ADMIN'].includes(response.role)) this.router.navigate(['/admin/dashboard']);
-        else if (response.role === 'Technicien') this.router.navigate(['/technicien/dashboard']);
+  constructor(private vehiculeService: VehiculeService) {}
+
+  ngOnInit(): void {
+    this.vehiculeService.getAll().subscribe({
+      next: (data) => {
+        this.vehicules = data.filter(v => v.statut === 'DISPONIBLE');
+        this.loading = false;
       },
-      error: () => {
-        if (role === 'client') this.router.navigate(['/client/dashboard']);
-        else if (role === 'admin' || role === 'super') this.router.navigate(['/admin/dashboard']);
-        else this.router.navigate(['/technicien/dashboard']);
-      }
+      error: () => { this.loading = false; }
     });
+  }
+
+  get vehiculesFiltres(): Vehicule[] {
+    return this.vehicules.filter(v => {
+      const matchType = this.filtreType === 'TOUS' || v.type === this.filtreType;
+      const kw = this.searchKeyword.toLowerCase();
+      const matchSearch = !kw ||
+        v.marque.toLowerCase().includes(kw) ||
+        v.modele.toLowerCase().includes(kw);
+      return matchType && matchSearch;
+    });
+  }
+
+  setFiltre(type: 'TOUS' | 'VOITURE' | 'CAMION'): void {
+    this.filtreType = type;
+  }
+
+  getTypeIcon(type: string): string {
+    return type === 'CAMION' ? '🚛' : '🚗';
+  }
+
+  getBoiteLabel(b?: string): string {
+    if (!b) return '';
+    return b === 'AUTOMATIQUE' ? 'Automatique' : 'Manuelle';
   }
 }

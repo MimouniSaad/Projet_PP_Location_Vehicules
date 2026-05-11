@@ -16,27 +16,27 @@
     </div>
     <div class="stat-card">
       <div class="stat-info">
-        <div class="stat-label">Paiements en attente</div>
+        <div class="stat-label">Réservations en attente</div>
         <div class="stat-value">{{ stats.enAttente }}</div>
-        <div class="stat-sub">458 € à régler</div>
+        <div class="stat-sub">En attente de validation</div>
       </div>
-      <div class="stat-icon" style="background:rgba(249,115,22,0.15)">💳</div>
+      <div class="stat-icon" style="background:rgba(249,115,22,0.15)">⏳</div>
     </div>
     <div class="stat-card">
       <div class="stat-info">
         <div class="stat-label">Total dépensé</div>
-        <div class="stat-value">{{ stats.totalDepense || 1240 }}€</div>
-        <div class="stat-sub">Ce mois</div>
+        <div class="stat-value">{{ stats.totalDepense }}€</div>
+        <div class="stat-sub">Locations terminées</div>
       </div>
       <div class="stat-icon" style="background:rgba(34,197,94,0.15)">💰</div>
     </div>
     <div class="stat-card">
       <div class="stat-info">
-        <div class="stat-label">Notifications</div>
-        <div class="stat-value">{{ stats.notifications }}</div>
-        <div class="stat-sub">Non lues</div>
+        <div class="stat-label">Réservations terminées</div>
+        <div class="stat-value">{{ reservations.length }}</div>
+        <div class="stat-sub">Historique</div>
       </div>
-      <div class="stat-icon" style="background:rgba(59,130,246,0.15)">🔔</div>
+      <div class="stat-icon" style="background:rgba(59,130,246,0.15)">✅</div>
     </div>
   </div>
 
@@ -68,29 +68,12 @@
     </div>
 
     <div class="card notif-card">
-      <h3>Notifications récentes</h3>
-      <div class="notif-item">
-        <div class="notif-icon orange">✅</div>
-        <div><p>Votre réservation #7 (BMW Série 3) a été confirmée.</p><span>Il y a 2h</span></div>
-      </div>
-      <div class="notif-item">
-        <div class="notif-icon blue">💳</div>
-        <div><p>Paiement de 180€ confirmé pour la réservation #1.</p><span>Il y a 1j</span></div>
-      </div>
-      <div class="notif-item">
-        <div class="notif-icon orange">🔔</div>
-        <div><p>Votre réservation #3 est en attente de validation.</p><span>Il y a 2j</span></div>
-      </div>
-      <a routerLink="/client/notifications" class="see-all" style="display:block;text-align:center;margin-top:16px">Voir toutes</a>
+      <h3>Accès rapides</h3>
+      <a routerLink="/client/reservations" class="action-item" style="display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid var(--border)">📅 Mes réservations</a>
+      <a routerLink="/client/paiements" class="action-item" style="display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid var(--border)">💳 Mes paiements</a>
+      <a routerLink="/client/profil" class="action-item" style="display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid var(--border)">👤 Mon profil</a>
+      <a routerLink="/client/vehicules" class="action-item" style="display:flex;align-items:center;gap:10px;padding:14px 0">🚗 Réserver un véhicule</a>
     </div>
   </div>
 
-  <div class="card accès-rapides">
-    <h3>Accès rapides</h3>
-    <div class="rapides-grid">
-      <a routerLink="/client/vehicules" class="rapide-item">🚗 Réserver un véhicule</a>
-      <a routerLink="/client/reservations" class="rapide-item">📅 Mes réservations</a>
-      <a routerLink="/client/paiements" class="rapide-item">📄 Mes factures</a>
-    </div>
-  </div>
 </div>

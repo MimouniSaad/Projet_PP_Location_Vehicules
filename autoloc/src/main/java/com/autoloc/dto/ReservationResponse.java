@@ -13,10 +13,16 @@ import java.time.LocalDate;
 public class ReservationResponse {
     private Long id;
     private Long clientId;
+    private String clientNom;
     private Long vehiculeId;
+    private String vehiculeMarque;
+    private String vehiculeModele;
+    private String immatriculation;
     private LocalDate dateDebut;
     private LocalDate dateFin;
     private double montant;
+    private double caution;
     private statutReservation statut;
     private LocalDate dateCreation;
+    private LocalDate dateRetour;
 }

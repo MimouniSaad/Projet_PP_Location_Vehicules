@@ -9,5 +9,7 @@ public class JwtResponse {
     private String token;
     private userRole role;
     private String email;
+    private Long userId;
+    private String firstname;
+    private String lastname;
 }
-
