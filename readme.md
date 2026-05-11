@@ -117,7 +117,7 @@ Diagramme des cas d'utilisations : [Diagramme Use Cases](Conceptions/diagramme%2
 
 Modèle de base de données :  [Modèle Base de Données](Conceptions/car_location_database.pdf) 
 
-<img width="913" height="836" alt="database" src="https://github.com/user-attachments/assets/f236467d-4a9c-4359-928e-ad014bd1a30e" />
+<img width="909" height="818" alt="database" src="https://github.com/user-attachments/assets/a0d2b799-deac-4144-8443-976f70ab1b55" />
 
 ---
 ## Contenarisation avec Docker
