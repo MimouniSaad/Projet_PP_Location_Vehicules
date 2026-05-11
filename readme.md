@@ -422,45 +422,14 @@ Les endpoints ont été testés directement via le **frontend Angular**, en cond
 
 ---
 
-## Tests unitaires
-
-### Outils utilisés
-
-| Outil | Rôle |
-|:---|:---|
-| **JUnit 5** | Framework de tests — structure et exécution des tests |
-| **Mockito** | Simulation des dépendances (Repository, JwtUtil, PasswordEncoder...) |
-
-### Lancement des tests
-
-### Couverture des tests
-
-| Fichier de test | Nb tests | Cas testés |
-|:---|:---:|:---|
-| `AuthServiceTest` | 3 | Login réussi, utilisateur introuvable, mauvais mot de passe |
-| `VehiculeServiceTest` | 6 | findById, findAll, suppression LOUE/EN_MAINTENANCE, changerStatut, introuvable |
-| `ReservationServiceTest` | 7 | Création, véhicule déjà réservé, valider, valider non EN_ATTENTE, refuser, findAll, getByClient |
-| `MaintenanceServiceTest` | 7 | Déclencher, assigner, technicien non disponible, ordre non SIGNALE, résoudre, résoudre non EN_COURS, clôturer |
-| `PaiementServiceTest` | 6 | Effectuer paiement, réservation non confirmée, déjà payée, rembourser, rembourser non confirmé, getPaiement introuvable |
-| `TechnicienServiceTest` | 7 | Créer, email déjà utilisé, supprimer, supprimer avec ordres EN_COURS, introuvable, findAll, findDisponibles |
-| `NotificationServiceTest` | 4 | Envoyer, utilisateur introuvable, findByUtilisateurId, liste vide |
-
-
-### Rôle des tests unitaires dans le projet
-
-Rôles des tests unitaires :
-
-- **Vérifier la logique métier** — chaque règle est testée indépendamment
-- **Détecter les régressions** — si une modification casse une fonctionnalité existante, le test échoue immédiatement
-
----
-
 ## Données de test — Flyway SQL
 
 Le projet utilise **Flyway** pour initialiser automatiquement la base de données au démarrage.  
 Le script `V1__create_users.sql` est exécuté automatiquement par Spring Boot.
 
 Ainsi lors du lancement des images **Docker**, des données seront insérées automatiquement dans la base.
+
+Pour accéder aux tests SQL : [Scripts SQL](autoloc/src/main/resources/db/migration/V1__create_users.sql)
 
 ### Données insérées automatiquement
 
@@ -520,8 +489,6 @@ INSERT INTO paiement (date_paiement, montant, mode_paiement, statut_paiement, re
 VALUES ('2026-05-01', 300, 'CB', 'CONFIRME', 1);
 ```
 
----
-
 ### Comptes de test
 
 | Rôle | Email | Mot de passe |
@@ -532,7 +499,38 @@ VALUES ('2026-05-01', 300, 'CB', 'CONFIRME', 1);
 
 ---
 
+## Tests unitaires
 
+### Outils utilisés
+
+| Outil | Rôle |
+|:---|:---|
+| **JUnit 5** | Framework de tests — structure et exécution des tests |
+| **Mockito** | Simulation des dépendances (Repository, JwtUtil, PasswordEncoder...) |
+
+### Lancement des tests
+
+### Couverture des tests
+
+| Fichier de test | Nb tests | Cas testés |
+|:---|:---:|:---|
+| `AuthServiceTest` | 3 | Login réussi, utilisateur introuvable, mauvais mot de passe |
+| `VehiculeServiceTest` | 6 | findById, findAll, suppression LOUE/EN_MAINTENANCE, changerStatut, introuvable |
+| `ReservationServiceTest` | 7 | Création, véhicule déjà réservé, valider, valider non EN_ATTENTE, refuser, findAll, getByClient |
+| `MaintenanceServiceTest` | 7 | Déclencher, assigner, technicien non disponible, ordre non SIGNALE, résoudre, résoudre non EN_COURS, clôturer |
+| `PaiementServiceTest` | 6 | Effectuer paiement, réservation non confirmée, déjà payée, rembourser, rembourser non confirmé, getPaiement introuvable |
+| `TechnicienServiceTest` | 7 | Créer, email déjà utilisé, supprimer, supprimer avec ordres EN_COURS, introuvable, findAll, findDisponibles |
+| `NotificationServiceTest` | 4 | Envoyer, utilisateur introuvable, findByUtilisateurId, liste vide |
+
+
+### Rôle des tests unitaires dans le projet
+
+Rôles des tests unitaires :
+
+- **Vérifier la logique métier** — chaque règle est testée indépendamment
+- **Détecter les régressions** — si une modification casse une fonctionnalité existante, le test échoue immédiatement
+
+---
 
 ## Analyse des Besoins
 
