@@ -198,22 +198,6 @@ docker volume rm autoloc_mysql_data
 
 ---
 
-### ℹ️ Ordre de démarrage
-
-Les services démarrent dans cet ordre grâce aux `depends_on` et `healthcheck` :
-
-
-mysql_db (healthcheck OK)
-↓
-spring_boot_app + phpmyadmin
-↓
-angular_app
-
-> Le backend attend que MySQL soit **complètement prêt** avant de démarrer, évitant les erreurs de connexion au lancement.
-
-
----
-
 ## Architecture du Projet
 
 ### Vue d'ensemble
