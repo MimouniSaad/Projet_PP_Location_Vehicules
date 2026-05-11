@@ -46,6 +46,7 @@ public class SecurityConfig {
                             .requestMatchers("/api/auth/login").permitAll()
                             .requestMatchers("/api/auth/register").permitAll()
                             .requestMatchers("/api/vehicules").permitAll()
+                            .requestMatchers("/api/vehicules/{id}").permitAll()
                             .requestMatchers("/swagger-ui/**").permitAll()
                             .requestMatchers("/v3/api-docs/**").permitAll()
                             // Tout le reste nécessite un token

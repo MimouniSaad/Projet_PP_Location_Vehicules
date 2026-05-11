@@ -11,49 +11,27 @@ services:
       MYSQL_USER: test
       MYSQL_PASSWORD: test
       MYSQL_ROOT_PASSWORD: root
-    networks:
-      - app_networks
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "test", "--password=test"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   autoloc:
+    image: rayanehr/projet_pp_location_vehicules-backend:latest
     container_name: spring_boot_app
-    build:
-      context: ./autoloc
-      dockerfile: Dockerfile
+    restart: on-failure
     ports:
       - "8080:8080"
     depends_on:
-      mysqldb:
-        condition: service_healthy
+      - mysqldb
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/autoloc?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: test
       SPRING_DATASOURCE_PASSWORD: test
-      SPRING_FLYWAY_ENABLED: false
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_SQL_INIT_MODE: always
-      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: true
-    networks:
-      - app_networks
 
   autoloc-front:
+    image: rayanehr/projet_pp_location_vehicules-frontend:latest
     container_name: angular_app
-    build:
-      context: ./autoloc-front
-      dockerfile: Dockerfile
     ports:
       - "80:80"
     depends_on:
       - autoloc
-    networks:
-      - app_networks
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -64,14 +42,3 @@ services:
       PMA_HOST: mysqldb
       PMA_USER: test
       PMA_PASSWORD: test
-    depends_on:
-      mysqldb:
-        condition: service_healthy
-    networks:
-      - app_networks
-
-networks:
-  app_networks:
-
-volumes:
-  mysql_data:
