@@ -8,7 +8,7 @@ autoloc/*.war
 # Credentials locaux — JAMAIS committer
 autoloc/src/main/resources/application-local.properties
 
-echo "autoloc-frontend/" >> .gitignore
+autoloc-frontend/
 
 # IntelliJ
 .idea/
