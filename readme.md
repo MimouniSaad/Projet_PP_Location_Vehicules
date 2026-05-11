@@ -203,88 +203,21 @@ docker volume rm autoloc_mysql_data
 
 ### Rôle de chaque couche
 
-| Couche | Annotation | Responsabilité |
-|:---|:---:|:---|
-| **Controller** | `@RestController` | Reçoit la requête HTTP, valide le DTO, appelle le Service, retourne `ResponseEntity` |
-| **Service** | `@Service` `@Transactional` | Logique métier complète : règles, calculs, coordination des Repositories |
-| **Repository** | `@Repository` | Unique point de contact avec la BDD — requêtes JPA/Hibernate |
-| **Mapper** | `@Mapper` | Conversion Entité ↔ DTO via MapStruct (zéro boilerplate) |
-| **Model** | `@Entity` | Entités JPA mappées aux tables MySQL |
-| **Security** | `Filter` | Intercepte chaque requête, valide le JWT, injecte l'utilisateur dans le contexte Spring |
-| **DTO** | — | Objets légers échangés avec le frontend — protège les entités |
-| **Exception** | `@ControllerAdvice` | Gestion centralisée des erreurs — retourne des réponses HTTP claires |
+| Couche | Responsabilité |
+|:---|:---|
+| `**Controller**` | Reçoit la requête HTTP, valide le DTO, appelle le Service, retourne `ResponseEntity` |
+| **Service** | Logique métier complète : règles, calculs, coordination des Repositories |
+| **Repository** | Unique point de contact avec la BDD — requêtes JPA/Hibernate |
+| **Mapper** | Conversion Entité ↔ DTO via MapStruct (zéro boilerplate) |
+| **Model** | Entités JPA mappées aux tables MySQL |
+| **Security** | Intercepte chaque requête, valide le JWT, injecte l'utilisateur dans le contexte Spring |
+| **DTO** | Objets légers échangés avec le frontend — protège les entités |
+| **Exception** | Gestion centralisée des erreurs — retourne des réponses HTTP claires |
 
 ### Structure des packages et arborescence
 
 ```
-src/
-├── main/
-│   ├── java/com/location/
-│   │   ├── config/
-│   │   │   ├── SecurityConfig.java       # Chaîne de filtres Spring Security
-│   │   │   ├── JwtConfig.java            # Clé secrète, durée du token
-│   │   │   └── DataInitializer.java      # Création SUPER_ADMIN au démarrage
-│   │   ├── controller/
-│   │   │   ├── AuthController.java       # POST /auth/login, /auth/register
-│   │   │   ├── ClientController.java     # /api/clients
-│   │   │   ├── VehiculeController.java   # /api/vehicules
-│   │   │   ├── ReservationController.java# /api/reservations
-│   │   │   ├── PaiementController.java   # /api/paiements
-│   │   │   └── MaintenanceController.java# /api/maintenance
-│   │   ├── service/
-│   │   │   ├── AuthService.java
-│   │   │   ├── ClientService.java
-│   │   │   ├── VehiculeService.java
-│   │   │   ├── ReservationService.java
-│   │   │   ├── PaiementService.java
-│   │   │   ├── MaintenanceService.java
-│   │   │   ├── NotificationService.java  # Transversal — email + BDD
-│   │   │   └── PdfService.java           # Transversal — génération PDF
-│   │   ├── repository/
-│   │   │   ├── UtilisateurRepository.java
-│   │   │   ├── ClientRepository.java
-│   │   │   ├── VehiculeRepository.java
-│   │   │   ├── ReservationRepository.java
-│   │   │   ├── PaiementRepository.java
-│   │   │   └── MaintenanceRepository.java
-│   │   ├── model/
-│   │   │   ├── Utilisateur.java          # @Entity @Inheritance(JOINED)
-│   │   │   ├── Admin.java                # @PrimaryKeyJoinColumn
-│   │   │   ├── SuperAdmin.java           # @PrimaryKeyJoinColumn
-│   │   │   ├── Client.java               # @PrimaryKeyJoinColumn
-│   │   │   ├── Mecanicien.java           # @PrimaryKeyJoinColumn
-│   │   │   ├── Vehicule.java             # @Entity @Inheritance(JOINED)
-│   │   │   ├── Voiture.java
-│   │   │   ├── Camion.java
-│   │   │   ├── Reservation.java
-│   │   │   ├── Paiement.java
-│   │   │   ├── Facture.java
-│   │   │   ├── Notification.java
-│   │   │   ├── OrdreMaintenance.java
-│   │   │   ├── OptionVehicule.java
-│   │   │   ├── Assurance.java
-│   │   │   └── embeddable/
-│   │   │       └── PermisConduire.java   # @Embeddable
-│   │   ├── dto/                          # Un DTO par entité (request + response)
-│   │   ├── enums/                        # Role, StatutVehicule, CategoriePermis...
-│   │   ├── exception/                    # Exceptions métier personnalisées
-│   │   │   ├── VehiculeNotFoundException.java
-│   │   │   ├── PermisInsuffisantException.java
-│   │   │   └── GlobalExceptionHandler.java  # @ControllerAdvice
-│   │   └── security/
-│   │       ├── JwtFilter.java            # Intercepte et valide le token
-│   │       └── UserDetailsServiceImpl.java
-│   └── resources/
-│       ├── application.properties        # Config commune (à committer)
-│       ├── application-local.properties  # Credentials locaux (dans .gitignore)
-│       └── db/migration/                 # Scripts Flyway versionnés
-│           ├── V1__create_tables.sql
-│           ├── V2__insert_enums.sql
-│           └── V3__add_constraints.sql
-└── test/
-    └── java/com/location/
-        ├── service/                      # Tests unitaires avec Mockito
-        └── controller/                   # Tests intégration avec MockMvcautoloc/
+autoloc/
 └── src/
 ├── main/
 │   ├── java/com/autoloc/
@@ -305,15 +238,21 @@ src/
 │   │   │
 │   │   ├── dto/
 │   │   │   ├── ChangePasswordRequest.java
-│   │   │   ├── ClientRequest/Response.java
+│   │   │   ├── ClientRequest.java
+│   │   │   ├── ClientResponse.java
 │   │   │   ├── JwtResponse.java
 │   │   │   ├── LoginRequest.java
-│   │   │   ├── MaintenanceRequest/Response.java
-│   │   │   ├── NotificationRequest/Response.java
-│   │   │   ├── PaiementRequest/Response.java
+│   │   │   ├── MaintenanceRequest.java
+│   │   │   ├── MaintenanceResponse.java
+│   │   │   ├── NotificationRequest.java
+│   │   │   ├── NotificationResponse.java
+│   │   │   ├── PaiementRequest.java
+│   │   │   ├── PaiementResponse.java
 │   │   │   ├── RegisterRequest.java
-│   │   │   ├── ReservationRequest/Response.java
-│   │   │   ├── TechnicienRequest/Response.java
+│   │   │   ├── ReservationRequest.java
+│   │   │   ├── ReservationResponse.java
+│   │   │   ├── TechnicienRequest.java
+│   │   │   ├── TechnicienResponse.java
 │   │   │   ├── UpdateProfilRequest.java
 │   │   │   ├── VehiculeRequest.java
 │   │   │   └── VehiculeResponse.java
@@ -356,8 +295,8 @@ src/
 │   │   │   ├── Reservation.java
 │   │   │   ├── SuperAdmin.java
 │   │   │   ├── Technicien.java
-│   │   │   ├── User.java           ← abstract
-│   │   │   ├── Vehicule.java       ← abstract
+│   │   │   ├── User.java
+│   │   │   ├── Vehicule.java
 │   │   │   └── Voiture.java
 │   │   │
 │   │   ├── repository/
@@ -405,45 +344,6 @@ src/
 └── VehiculeServiceTest.java
 ```
 
-### Docker Compose — 4 services
-
-```yaml
-services:
-
-  mysql:          # Base de données MySQL 8
-    image: mysql:8.0
-    port: 3306
-
-  app:            # API Spring Boot
-    build: .
-    port: 8080
-    depends_on: mysql
-
-  phpmyadmin:     # Interface graphique base de données
-    image: phpmyadmin
-    port: 8081
-
-  maildev:        # Faux serveur SMTP pour tester les emails
-    image: maildev/maildev
-    port: 1080    # Interface web des emails
-```
-
-### Workflow Git
-
-```
-main ──────────────────────────────────────────► (production stable)
-  │
-develop ───────────────────────────────────────► (intégration)
-  │
-  ├── feature/auth          (login, register, JWT)
-  ├── feature/vehicules      (CRUD voitures/camions, options)
-  ├── feature/reservations   (réservation, validation, retour)
-  ├── feature/paiements      (paiement, facture PDF)
-  └── feature/maintenance    (ordres, téchnicien)
-```
-
-Chaque `feature/*` fait l'objet d'une **Pull Request** sur GitHub, relue par un autre membre avant le merge sur `develop`.
-
 ### Endpoints REST principaux
 
 ```
@@ -460,19 +360,112 @@ PATCH  /api/reservations/{id}/valider   Valider              [ADMIN]
 PATCH  /api/reservations/{id}/refuser   Refuser              [ADMIN]
 PATCH  /api/reservations/{id}/retour    Enregistrer retour   [ADMIN]
 
-POST   /api/paiements               Régler un paiement        [CLIENT]
-GET    /api/paiements/{id}/facture  Télécharger facture PDF   [CLIENT]
-
 POST   /api/maintenance             Créer ordre maintenance   [ADMIN]
 PATCH  /api/maintenance/{id}/cloturer  Clôturer réparation   [MECANICIEN]
 
-GET    /api/clients                 Liste des clients         [ADMIN]
-POST   /api/clients                 Créer un client           [ADMIN]
+GET    /api/clients                 Liste des clients         [CLIENT]
+POST   /api/clients                 Créer un client           [CLIENT]
+```
+---
+
+## 🗄️ Données de test — Flyway SQL
+
+Le projet utilise **Flyway** pour initialiser automatiquement la base de données au démarrage.  
+Le script `V1__create_users.sql` est exécuté automatiquement par Spring Boot.
+
+Ainsi lors du lancement des images **Docker**, des données seront insérées automatiquement dans la base.
+
+### Données insérées automatiquement
+
+```bash
+-- 1. UTILISATEURS
+INSERT INTO utilisateur (id, firstname, lastname, email, password, phone, role, address, actif)
+VALUES
+    (3, 'Client', 'Test',  'client@autoloc.com',  '$2a$10$qCPnYu1YgqT.mhXBKa9MlOnBdrJguXtGXXHsj65y7bIA49/WjPl/6', '0622222222', 'CLIENT',     'Marseille', 1),
+    (4, 'Client', 'Two',   'client2@autoloc.com', '$2a$10$qCPnYu1YgqT.mhXBKa9MlOnBdrJguXtGXXHsj65y7bIA49/WjPl/6', '0622222223', 'CLIENT',     'Nice',      1),
+    (5, 'Tech',   'One',   'tech@autoloc.com',    '$2a$10$qCPnYu1YgqT.mhXBKa9MlOnBdrJguXtGXXHsj65y7bIA49/WjPl/6', '0633333333', 'Technicien', 'Lille',     1);
 ```
 
-> 📖 Documentation complète et interactive disponible sur `http://localhost:8080/swagger-ui.html` après démarrage.
+```bash
+-- 2. PERMIS
+INSERT INTO permis_conduire (numero, date_obtention, date_expiration, categorie, pays_emission)
+VALUES
+    ('P123456', '2020-01-10', '2030-01-10', 'B', 'MAROC'),
+    ('P654321', '2019-06-15', '2029-06-15', 'C', 'FRANCE');
+```
+
+```bash
+-- 3. TECHNICIEN
+INSERT INTO technicien (id, disponible, specialite) VALUES (5, 1, 'MECANIQUE');
+```
+
+```bash
+-- 4. CLIENTS
+INSERT INTO client (id, permis_numero, statut_reservation)
+VALUES (3, 'P123456', null), (4, 'P654321', null);
+```
+
+```bash
+-- 5. VÉHICULES
+INSERT INTO vehicule (id, annee, caution, prix_par_jour, immatriculation, type_boite_vitesse, type_carburant, type, marque, modele, image, statut)
+VALUES
+    (1, 2022, 500, 60, 'AA-123-BB', 'AUTO',   'DIESEL',  'VOITURE', 'Renault', 'Clio', NULL, 'DISPONIBLE'),
+    (2, 2021, 800, 90, 'CC-456-DD', 'MANUEL', 'ESSENCE', 'VOITURE', 'Peugeot', '208',  NULL, 'DISPONIBLE');
+```
+
+```bash
+-- 6. VOITURES
+INSERT INTO voiture (id, nb_places, nb_portes, categorie)
+VALUES (1, 5, 5, 'URBAINE'), (2, 5, 3, 'SPORT');
+```
+
+```bash
+-- 7. RÉSERVATIONS
+INSERT INTO reservation (id, date_creation, date_debut, date_fin, date_retour, montant, statut_reservation, client_id, vehicule_id)
+VALUES
+    (1, '2026-05-01', '2026-05-10', '2026-05-15', NULL, 300, 'CONFIRMEE',  3, 1),
+    (2, '2026-05-02', '2026-05-12', '2026-05-18', NULL, 420, 'EN_ATTENTE', 4, 2);
+```
+
+```bash
+-- 8. PAIEMENT
+INSERT INTO paiement (date_paiement, montant, mode_paiement, statut_paiement, reservation_id)
+VALUES ('2026-05-01', 300, 'CB', 'CONFIRME', 1);
+```
+
+
+
 
 ---
+
+### 👤 Comptes de test
+
+> Mot de passe pour tous les comptes : **`password123`**
+
+| Rôle | Email |
+|:---:|:---|
+| `CLIENT` | client@autoloc.com |
+| `CLIENT` | client2@autoloc.com |
+| `Technicien` | tech@autoloc.com |
+
+---
+
+### Convention Flyway
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Analyse des Besoins
 
@@ -518,9 +511,6 @@ POST   /api/clients                 Créer un client           [ADMIN]
 - Chaque événement métier déclenche une notification : confirmation de réservation, validation, refus, paiement reçu, retour enregistré, ordre de maintenance assigné
 - Les notifications sont stockées en base et envoyées par email
 
-#### Rapports (Admin)
-- L'admin peut générer des rapports sur les locations, le chiffre d'affaires et l'activité des clients sur une période donnée
-
 ### Besoins non fonctionnels
 
 - | **Sécurité** | Spring Security + JWT, BCrypt pour les mots de passe, @PreAuthorize par rôle |
@@ -529,188 +519,6 @@ POST   /api/clients                 Créer un client           [ADMIN]
 - | **Traçabilité** | Flyway pour les migrations SQL, timestamps sur toutes les entités |
 - | **Maintenabilité** | Architecture en couches, séparation entité/DTO avec MapStruct |
 - | **Documentation** | Swagger UI auto-générée depuis les annotations Spring |
-
----
-
-#### Hiérarchie des utilisateurs
-
-```
-Utilisateur (abstract)
-│   id, nom, prenom, email, motDePasse, telephone, role, actif
-│   + seConnecter(), seDeconnecter(), modifierProfil()
-│
-├── Admin
-│   │   niveauAcces, derniereConnexion
-│   │   + creerCompteClient(), creerCompteMecanicien()
-│   │   + validerReservation(), refuserReservation()
-│   │   + ajouterVehicule(), signalerPanne()
-│   │
-│   └── SuperAdmin
-│           + creerCompteAdmin(), desactiverAdmin()
-│
-├── Client
-│   │   adresse, dateNaissance
-│   │   + sInscrire(), reserverVehicule(), reglerPaiement()
-│   │
-│   └── PermisConduire (composition *--)
-│           numero, categorie, dateExpiration, paysEmission
-│           + estValide(), autoriseVoiture(), autoriseCamion(tonnage)
-│
-└── Mecanicien
-        specialite, disponible
-        + demarrerReparation(), cloturerReparation()
-```
-
-#### Hiérarchie des véhicules
-
-```
-Vehicule (abstract)
-│   id, marque, modele, immatriculation, prixParJour, caution, statut
-│   + estDisponible(debut, fin), changerStatut()
-│
-├── Voiture      — nbPortes, typeCarburant, typeBoite, nbPlaces
-└── Camion       — tonnage, volumeM3, longueur, hayonElevateur
-```
-
-#### Relations Many-to-Many
-
-| Relation | Table pivot | Attributs propres |
-|---|---|---|
-| `Vehicule ↔ OptionVehicule` | `vehicule_option` | `disponible`, `date_ajout` |
-| `Reservation ↔ Assurance` | `reservation_assurance` | `montant_applique`, `date_souscription` |
-
-#### Énumérations
-
-| Enum | Valeurs |
-|---|---|
-| `Role` | SUPER_ADMIN, ADMIN, CLIENT, MECANICIEN |
-| `NiveauAcces` | SUPER_ADMIN, ADMIN_STANDARD |
-| `StatutVehicule` | DISPONIBLE, LOUE, EN_MAINTENANCE, HORS_SERVICE |
-| `StatutReservation` | EN_ATTENTE, CONFIRMEE, REFUSEE, EN_COURS, TERMINEE, ANNULEE |
-| `StatutPaiement` | EN_ATTENTE, CONFIRME, ECHOUE, REMBOURSE |
-| `StatutMaintenance` | SIGNALE, ASSIGNE, EN_COURS, RESOLU |
-| `CategoriePermis` | B, BE, C1, C1E, C, CE |
-
----
-
-### Modèle de Données (MCD)
-
-> 📎 `docs/diagrammes/mcd.png`
-
-#### Stratégie d'héritage : JOINED (table par sous-classe)
-
-Les tables `CLIENT`, `ADMIN` et `MECANICIEN` ne possèdent **pas** de colonne `id` avec AUTO_INCREMENT. Leur clé primaire est à la fois PK et FK vers `UTILISATEUR.id`. JPA gère cela via `@PrimaryKeyJoinColumn`.
-
-```
-UTILISATEUR (id AUTO_INCREMENT)  ←──PK=FK──  CLIENT
-                                 ←──PK=FK──  ADMIN
-                                 ←──PK=FK──  MECANICIEN
-
-VEHICULE    (id AUTO_INCREMENT)  ←──PK=FK──  VOITURE
-                                 ←──PK=FK──  CAMION
-```
-
-#### Cardinalités principales
-
-```
-UTILISATEUR  ||──o{  NOTIFICATION       (1 utilisateur reçoit 0..N notifications)
-CLIENT       ||──o{  RESERVATION        (1 client passe 0..N réservations)
-VEHICULE     ||──o{  RESERVATION        (1 véhicule est réservé 0..N fois)
-RESERVATION  ||──o|  PAIEMENT           (1 réservation génère 0..1 paiement)
-PAIEMENT     ||──||  FACTURE            (1 paiement produit 1 facture)
-VEHICULE     ||──o{  ORDRE_MAINTENANCE  (1 véhicule fait l'objet de 0..N ordres)
-VEHICULE     }o──o{  OPTION_VEHICULE    (M:N via vehicule_option)
-RESERVATION  }o──o{  ASSURANCE          (M:N via reservation_assurance)
-```
-
----
-
-## Stack Technique
-
-### Outils de développement
-
-| Catégorie | Technologie | Rôle |
-|---|---|---|
-| **Langage** | Java 17 | Langage principal backend |
-| **Framework** | Spring Boot 3.x | Socle de l'application REST |
-| **Sécurité** | Spring Security + JWT | Authentification, autorisation par rôle |
-| **ORM** | Spring Data JPA + Hibernate | Mapping objet ↔ base de données |
-| **Validation** | Spring Validation | Validation automatique des DTOs |
-| **Mapping** | MapStruct | Conversion entité ↔ DTO |
-| **Boilerplate** | Lombok | Génération automatique getters/setters/builders |
-| **PDF** | OpenPDF | Génération des factures |
-| **Email** | Spring Mail + Maildev | Envoi et test des notifications email |
-| **Build** | Maven | Gestion des dépendances, compilation, packaging |
-| **BDD principale** | MySQL 8 | Stockage relationnel des données |
-| **Migration BDD** | Flyway | Versioning du schéma SQL |
-| **BDD tests** | H2 | Base en mémoire pour les tests unitaires |
-| **Frontend** | Angular + Vite | Interface utilisateur (SPA) |
-| **HTTP Client** | Axios | Appels REST depuis le frontend |
-| **CSS** | Tailwind CSS | Stylisation de l'interface |
-| **Routing** | Angular App Routes | Navigation et routes protégées par rôle |
-| **Tests** | JUnit 5 + Mockito | Tests unitaires backend |
-| **Doc API** | Swagger / OpenAPI 3 | Documentation interactive auto-générée |
-
-### Outils de partage et collaboration
-
-| Outil | Usage |
-|---|---|
-| **Git** | Versioning local du code |
-| **GitHub** | Hébergement du dépôt, Pull Requests, revue de code |
-| **GitHub Actions** | CI/CD — exécution automatique des tests à chaque push |
-| **Railway.app** | Hébergement de la base de données MySQL partagée entre les membres |
-| **Docker + Docker Compose** | Conteneurisation — même environnement garanti pour tous |
-| **Postman** | Tests manuels et partage des collections d'endpoints REST |
-| **Discord / WhatsApp** | Communication d'équipe et partage des credentials (jamais sur GitHub) |
-
-> ⚠️ Les credentials de la base de données (host, port, user, password) ne doivent **jamais** être committés sur GitHub. Chaque membre configure son fichier `application-local.properties` localement, ce fichier étant listé dans `.gitignore`.
-
-
----
-
-## Démarrage rapide
-
-```bash
-# 1. Cloner le dépôt
-git clone https://github.com/votre-compte/autoloc.git
-cd autoloc
-
-# 2. Configurer les credentials (ne jamais committer ce fichier)
-cp src/main/resources/application-example.properties \
-   src/main/resources/application-local.properties
-# → Remplir avec les credentials Railway ou MySQL local
-
-# 3. Lancer tous les services avec Docker
-docker-compose up -d
-
-# 4. Accéder à l'application
-#  API REST     →  http://localhost:8080/api
-#  Swagger UI   →  http://localhost:8080/swagger-ui.html
-#  phpMyAdmin   →  http://localhost:8081
-#  Maildev      →  http://localhost:1080
-```
-
----
-
-## Organisation du dépôt
-
-```
-autoloc/
-├── src/                        # Code source Spring Boot
-├── frontend/                   # Application Angular + Vite
-├── docs/
-│   ├── diagrammes/
-│   │   ├── use_case.png
-│   │   ├── class_diagram.png
-│   │   ├── mcd.png
-│   │   └── sequences/
-│   └── sql/
-│       └── tables_utilisateurs.sql
-├── docker-compose.yml
-├── Dockerfile
-├── .gitignore                  # Inclut application-local.properties
-└── README.md
-```
 
 ---
 
