@@ -1,4 +1,5 @@
 <div class="landing">
+
   <!-- NAVBAR -->
   <nav class="navbar">
     <div class="navbar-brand">
@@ -8,6 +9,11 @@
         <span class="logo-sub">LOCATION VÉHICULES</span>
       </div>
     </div>
+    <div class="navbar-links">
+      <a href="#catalogue">Catalogue</a>
+      <a href="#fonctionnalites">Services</a>
+      <a href="#comment">Comment ça marche</a>
+    </div>
     <div class="navbar-actions">
       <a routerLink="/login" class="btn-nav-outline">Connexion</a>
       <a routerLink="/register" class="btn-nav-primary">S'inscrire</a>
@@ -16,27 +22,111 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-badge">⭐ Plateforme de gestion professionnelle</div>
-    <h1 class="hero-title">Location de véhicules<br><span class="hero-highlight">simplifiée.</span></h1>
-    <p class="hero-subtitle">
-      Voitures et camions disponibles en ligne — réservez, payez et gérez<br>
-      vos locations depuis votre espace personnel.
-    </p>
-    <div class="hero-actions">
-      <a routerLink="/register" class="btn-primary-large">→ Commencer</a>
-      <a routerLink="/login" class="btn-outline-large">🔍 Voir les véhicules</a>
+    <div class="hero-content">
+      <div class="hero-badge">Disponible maintenant</div>
+      <h1 class="hero-title">Louez le véhicule<br><span class="hero-highlight">qu'il vous faut.</span></h1>
+      <p class="hero-subtitle">
+        Voitures et camions disponibles en ligne — réservez en quelques clics
+        et gérez vos locations depuis votre espace personnel.
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/register" class="btn-primary-large">Démarrer gratuitement</a>
+        <a href="#catalogue" class="btn-outline-large">Voir le catalogue</a>
+      </div>
     </div>
-    <div class="stats-row">
-      <div class="stat-item"><span class="stat-value">120+</span><span class="stat-label">Véhicules disponibles</span></div>
-      <div class="stat-item"><span class="stat-value">2 400+</span><span class="stat-label">Locations effectuées</span></div>
-      <div class="stat-item"><span class="stat-value">98%</span><span class="stat-label">Clients satisfaits</span></div>
-      <div class="stat-item"><span class="stat-value">24h</span><span class="stat-label">Support disponible</span></div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ vehicules.length || '—' }}</span>
+        <span class="stat-label">Véhicules disponibles</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">24h</span>
+        <span class="stat-label">Support disponible</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">100%</span>
+        <span class="stat-label">En ligne</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATALOGUE -->
+  <section class="catalogue" id="catalogue">
+    <div class="section-header">
+      <h2>Nos véhicules disponibles</h2>
+      <p class="section-sub">Tous nos véhicules sont contrôlés et prêts à la location</p>
+    </div>
+
+    <div class="catalogue-controls">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          placeholder="Rechercher par marque ou modèle..."
+          [(ngModel)]="searchKeyword"
+        />
+      </div>
+      <div class="filtre-tabs">
+        <button [class.active]="filtreType === 'TOUS'" (click)="setFiltre('TOUS')">Tous</button>
+        <button [class.active]="filtreType === 'VOITURE'" (click)="setFiltre('VOITURE')">Voitures</button>
+        <button [class.active]="filtreType === 'CAMION'" (click)="setFiltre('CAMION')">Camions</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="catalogue-loading" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Chargement des véhicules...</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="catalogue-empty" *ngIf="!loading && vehiculesFiltres.length === 0">
+      <div class="empty-icon">🚫</div>
+      <p>Aucun véhicule disponible pour ce filtre.</p>
+    </div>
+
+    <!-- Grid -->
+    <div class="vehicules-grid" *ngIf="!loading && vehiculesFiltres.length > 0">
+      <div class="vehicule-card" *ngFor="let v of vehiculesFiltres">
+        <div class="card-image">
+          <img *ngIf="v.image" [src]="v.image" [alt]="v.marque + ' ' + v.modele" />
+          <div class="card-image-placeholder" *ngIf="!v.image">
+            <span>{{ getTypeIcon(v.type) }}</span>
+          </div>
+          <span class="card-type-badge">{{ v.type === 'CAMION' ? 'Camion' : 'Voiture' }}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title-row">
+            <h3>{{ v.marque }} {{ v.modele }}</h3>
+            <span class="card-year">{{ v.annee }}</span>
+          </div>
+          <div class="card-specs">
+            <span *ngIf="v.nbPlaces">👥 {{ v.nbPlaces }} places</span>
+            <span *ngIf="v.typeBoite">⚙️ {{ getBoiteLabel(v.typeBoite) }}</span>
+            <span *ngIf="v.typeCarburant">⛽ {{ v.typeCarburant }}</span>
+            <span *ngIf="v.tonnage">🏋️ {{ v.tonnage }}T</span>
+            <span *ngIf="v.volume">📦 {{ v.volume }}m³</span>
+          </div>
+          <div class="card-footer">
+            <div class="card-price">
+              <span class="price-amount">{{ v.prixParJour | number:'1.0-0' }} €</span>
+              <span class="price-unit">/ jour</span>
+            </div>
+            <a routerLink="/register" class="btn-reserve">Réserver</a>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- FEATURES -->
-  <section class="features">
-    <h2>Pourquoi choisir AutoLoc ?</h2>
+  <section class="features" id="fonctionnalites">
+    <div class="section-header">
+      <h2>Pourquoi choisir AutoLoc ?</h2>
+      <p class="section-sub">Une plateforme complète pour tous vos besoins de location</p>
+    </div>
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon">✅</div>
@@ -53,29 +143,37 @@
         <h3>Parc entretenu</h3>
         <p>Maintenance planifiée, chaque véhicule contrôlé avant location.</p>
       </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Espace client</h3>
+        <p>Suivi de vos réservations, notifications et historique en temps réel.</p>
+      </div>
     </div>
   </section>
 
   <!-- HOW IT WORKS -->
-  <section class="how-it-works">
-    <h2>Comment ça marche ?</h2>
+  <section class="how-it-works" id="comment">
+    <div class="section-header">
+      <h2>Comment ça marche ?</h2>
+      <p class="section-sub">3 étapes simples pour louer votre véhicule</p>
+    </div>
     <div class="steps-row">
       <div class="step">
         <div class="step-number">01</div>
         <h3>Inscrivez-vous</h3>
-        <p>Créez votre compte et ajoutez votre permis de conduire.</p>
+        <p>Créez votre compte gratuitement en quelques secondes.</p>
       </div>
-      <div class="step-divider"></div>
+      <div class="step-arrow">→</div>
       <div class="step">
         <div class="step-number">02</div>
         <h3>Choisissez</h3>
-        <p>Parcourez le catalogue, filtrez par type, prix, options.</p>
+        <p>Parcourez le catalogue, filtrez par type, prix et options.</p>
       </div>
-      <div class="step-divider"></div>
+      <div class="step-arrow">→</div>
       <div class="step">
         <div class="step-number">03</div>
-        <h3>Réservez & payez</h3>
-        <p>Confirmation immédiate, facture envoyée par email.</p>
+        <h3>Réservez</h3>
+        <p>Confirmation immédiate, facture envoyée automatiquement.</p>
       </div>
     </div>
   </section>
@@ -84,26 +182,25 @@
   <section class="cta-section">
     <div class="cta-box">
       <h2>Prêt à réserver votre véhicule ?</h2>
-      <p>Inscription gratuite — accès immédiat au catalogue.</p>
-      <a routerLink="/register" class="btn-primary-large">→ Créer mon compte</a>
+      <p>Inscription gratuite — accès immédiat au catalogue complet.</p>
+      <div class="cta-actions">
+        <a routerLink="/register" class="btn-primary-large">Créer mon compte</a>
+        <a routerLink="/login" class="btn-outline-large">J'ai déjà un compte</a>
+      </div>
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer class="footer">
-    <span>© 2026 AutoLoc — Projet académique</span>
+    <div class="footer-brand">
+      <div class="logo-icon-sm">🚗</div>
+      <span class="footer-name">AutoLoc</span>
+    </div>
+    <span class="footer-copy">© 2026 AutoLoc — Tous droits réservés</span>
     <div class="footer-links">
       <a routerLink="/login">Connexion</a>
       <a routerLink="/register">Inscription</a>
     </div>
   </footer>
 
-  <!-- DEMO BAR -->
-  <div class="demo-bar">
-    <span>Démo :</span>
-    <button class="demo-btn client" (click)="loginDemo('client')">Client</button>
-    <button class="demo-btn admin" (click)="loginDemo('admin')">Admin</button>
-    <button class="demo-btn super" (click)="loginDemo('super')">Super Admin</button>
-    <button class="demo-btn meca" (click)="loginDemo('meca')">Mécanicien</button>
-  </div>
 </div>

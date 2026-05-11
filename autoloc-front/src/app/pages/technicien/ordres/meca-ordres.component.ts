@@ -30,19 +30,29 @@ export class MecaOrdresComponent implements OnInit {
   }
 
   demarrer(o: OrdreMaintenance): void {
-    this.maintenanceService.assigner(o.id, this.auth.userId).subscribe({ next: updated => {
-      const i = this.ordres.findIndex(x => x.id === updated.id);
-      if (i >= 0) this.ordres[i] = updated;
-      this.setFiltre(this.filtre);
-    }, error: () => {} });
+    this.maintenanceService.demarrerReparation(this.auth.userId, o.id).subscribe({
+      next: updated => {
+        const i = this.ordres.findIndex(x => x.id === updated.id);
+        if (i >= 0) this.ordres[i] = updated;
+        this.setFiltre(this.filtre);
+      },
+      error: () => {}
+    });
   }
 
   cloturer(o: OrdreMaintenance): void {
-    this.maintenanceService.cloturer(o.id).subscribe({ next: updated => {
-      const i = this.ordres.findIndex(x => x.id === updated.id);
-      if (i >= 0) this.ordres[i] = updated;
-      this.setFiltre(this.filtre);
-    }, error: () => {} });
+    const coutStr = prompt('Coût réel de la réparation (€) :');
+    if (coutStr === null) return;
+    const cout = parseFloat(coutStr);
+    if (isNaN(cout)) return;
+    this.maintenanceService.cloturerParTechnicien(this.auth.userId, o.id, cout).subscribe({
+      next: updated => {
+        const i = this.ordres.findIndex(x => x.id === updated.id);
+        if (i >= 0) this.ordres[i] = updated;
+        this.setFiltre(this.filtre);
+      },
+      error: () => {}
+    });
   }
 
   getStatutClass(s: string): string {

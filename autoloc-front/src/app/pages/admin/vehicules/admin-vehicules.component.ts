@@ -23,6 +23,9 @@ export class AdminVehiculesComponent implements OnInit {
   newV: VehiculeRequest = { type:'VOITURE', marque:'', modele:'', immatriculation:'', annee: new Date().getFullYear(), prixParJour:0, caution:0, statut:'DISPONIBLE' };
   typePanne = '';
   descPanne = '';
+  saving = false;
+  errorMsg = '';
+  successMsg = '';
 
   constructor(private vehiculeService: VehiculeService) {}
 
@@ -43,30 +46,64 @@ export class AdminVehiculesComponent implements OnInit {
   }
 
   ajouter(): void {
-    this.vehiculeService.create(this.newV).subscribe({ next: (v) => { this.vehicules.push(v); this.filtered = [...this.vehicules]; this.showAddModal = false; }, error: () => {} });
+    if (this.saving) return;
+    this.saving = true;
+    this.errorMsg = '';
+    this.vehiculeService.create(this.newV).subscribe({
+      next: (v) => {
+        this.vehicules.push(v);
+        this.filtered = [...this.vehicules];
+        this.showAddModal = false;
+        this.saving = false;
+        this.newV = { type:'VOITURE', marque:'', modele:'', immatriculation:'', annee: new Date().getFullYear(), prixParJour:0, caution:0 };
+      },
+      error: (err) => {
+        this.errorMsg = err?.error?.error || 'Erreur lors de l\'ajout.';
+        this.saving = false;
+      }
+    });
   }
 
   modifier(): void {
-    if (!this.selected) return;
-    this.vehiculeService.update(this.selected.id, this.newV).subscribe({ next: (v) => {
-      const i = this.vehicules.findIndex(x => x.id === v.id);
-      if (i >= 0) { this.vehicules[i] = v; this.filtered = [...this.vehicules]; }
-      this.showEditModal = false;
-    }, error: () => {} });
+    if (!this.selected || this.saving) return;
+    this.saving = true;
+    this.errorMsg = '';
+    this.vehiculeService.update(this.selected.id, this.newV).subscribe({
+      next: (v) => {
+        const i = this.vehicules.findIndex(x => x.id === v.id);
+        if (i >= 0) { this.vehicules[i] = v; this.filtered = [...this.vehicules]; }
+        this.showEditModal = false;
+        this.saving = false;
+      },
+      error: (err) => {
+        this.errorMsg = err?.error?.error || 'Erreur lors de la modification.';
+        this.saving = false;
+      }
+    });
   }
 
   supprimer(): void {
     if (!this.selected) return;
-    this.vehiculeService.delete(this.selected.id).subscribe({ next: () => {
-      this.vehicules = this.vehicules.filter(v => v.id !== this.selected!.id);
-      this.filtered = [...this.vehicules];
-      this.showEditModal = false;
-    }, error: () => {} });
+    this.vehiculeService.delete(this.selected.id).subscribe({
+      next: () => {
+        this.vehicules = this.vehicules.filter(v => v.id !== this.selected!.id);
+        this.filtered = [...this.vehicules];
+        this.showEditModal = false;
+      },
+      error: (err) => { this.errorMsg = err?.error?.error || 'Impossible de supprimer ce véhicule.'; }
+    });
   }
 
   signalerPanne(): void {
     if (!this.selected) return;
-    this.vehiculeService.updateStatut(this.selected.id, 'EN_MAINTENANCE').subscribe({ next: () => { this.showPanneModal = false; }, error: () => {} });
+    this.vehiculeService.updateStatut(this.selected.id, 'EN_MAINTENANCE').subscribe({
+      next: () => {
+        const v = this.vehicules.find(x => x.id === this.selected!.id);
+        if (v) v.statut = 'EN_MAINTENANCE';
+        this.showPanneModal = false;
+      },
+      error: () => {}
+    });
   }
 
   getStatutClass(s: string): string {

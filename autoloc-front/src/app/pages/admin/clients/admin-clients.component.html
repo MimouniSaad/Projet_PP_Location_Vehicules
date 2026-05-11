@@ -1,9 +1,51 @@
 <div class="page">
   <div class="page-header">
-    <p class="breadcrumb">👥 Gestion des clients</p>
-    <h1>👥 Gestion des clients</h1>
+    <p class="breadcrumb">Gestion des clients</p>
+    <h1>Gestion des clients</h1>
   </div>
+
   <div class="card">
-    <p style="color: var(--text-muted)">Page en cours de développement...</p>
+    <div style="display:flex;gap:12px;margin-bottom:20px">
+      <input type="text" [(ngModel)]="search" (input)="filtrer()" placeholder="Rechercher un client..." style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text)">
+    </div>
+
+    <div *ngIf="loading" style="text-align:center;padding:40px;color:var(--text-muted)">Chargement...</div>
+    <div *ngIf="error" class="error-msg" style="margin-bottom:16px">{{ error }}</div>
+
+    <div *ngIf="!loading" class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>NOM</th>
+            <th>EMAIL</th>
+            <th>TÉLÉPHONE</th>
+            <th>RÉSERVATIONS</th>
+            <th>STATUT</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filtered">
+            <td style="color:var(--text-muted)">#{{ c.id }}</td>
+            <td style="font-weight:600">{{ c.firstname }} {{ c.lastname }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.phone || '—' }}</td>
+            <td>{{ c.nombreReservations ?? '—' }}</td>
+            <td>
+              <span class="badge" [ngClass]="c.actif !== false ? 'badge-success' : 'badge-danger'">
+                {{ c.actif !== false ? 'Actif' : 'Désactivé' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-danger btn-sm" *ngIf="c.actif !== false" (click)="desactiver(c)">Désactiver</button>
+            </td>
+          </tr>
+          <tr *ngIf="filtered.length === 0">
+            <td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px">Aucun client trouvé.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

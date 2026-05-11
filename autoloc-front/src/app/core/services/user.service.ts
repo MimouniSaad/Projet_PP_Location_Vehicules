@@ -13,6 +13,5 @@ export class UserService {
   getTechniciensDisponibles(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/techniciens/disponibles`);
   }
-  activerClient(id: number): Observable<void> { return this.http.patch<void>(`${this.apiUrl}/clients/${id}/activer`, {}); }
   desactiverClient(id: number): Observable<void> { return this.http.patch<void>(`${this.apiUrl}/clients/${id}/desactiver`, {}); }
 }

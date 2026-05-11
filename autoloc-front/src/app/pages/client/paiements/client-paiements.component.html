@@ -1,9 +1,56 @@
 <div class="page">
   <div class="page-header">
-    <p class="breadcrumb">💳 Mes paiements</p>
-    <h1>💳 Mes paiements</h1>
+    <p class="breadcrumb">Mes paiements</p>
+    <h1>Mes paiements</h1>
   </div>
+
   <div class="card">
-    <p style="color: var(--text-muted)">Page en cours de développement...</p>
+    <div *ngIf="loading" style="text-align:center;padding:40px;color:var(--text-muted)">Chargement...</div>
+    <div *ngIf="error" class="error-msg" style="margin-bottom:16px">{{ error }}</div>
+    <div *ngIf="successMsg" style="background:rgba(34,197,94,0.1);color:var(--success);padding:12px 16px;border-radius:8px;margin-bottom:16px">{{ successMsg }}</div>
+
+    <div *ngIf="!loading" class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>RÉSERVATION</th>
+            <th>VÉHICULE</th>
+            <th>PÉRIODE</th>
+            <th>MONTANT</th>
+            <th>STATUT</th>
+            <th>PAIEMENT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reservations">
+            <td style="color:var(--text-muted)">#{{ r.id }}</td>
+            <td>{{ r.vehiculeMarque }} {{ r.vehiculeModele }}</td>
+            <td style="font-size:13px">{{ r.dateDebut | date:'dd/MM/yy' }} → {{ r.dateFin | date:'dd/MM/yy' }}</td>
+            <td style="color:var(--primary);font-weight:600">{{ r.montant }}€</td>
+            <td><span class="badge" [ngClass]="getStatutClass(r.statut)">{{ getStatutLabel(r.statut) }}</span></td>
+            <td>
+              <ng-container *ngIf="r.statut === 'CONFIRMEE'">
+                <ng-container *ngIf="payingId === r.id">
+                  <select [(ngModel)]="modePaiement" style="margin-right:8px;padding:4px 8px;border-radius:6px;border:1px solid var(--border)">
+                    <option value="CB">Carte bancaire</option>
+                    <option value="CHEQUE">Chèque</option>
+                    <option value="ESPECE">Espèces</option>
+                  </select>
+                  <button class="btn btn-success btn-sm" (click)="confirmerPaiement(r)">Valider</button>
+                  <button class="btn btn-sm" (click)="annulerPaiement()" style="margin-left:4px">✕</button>
+                </ng-container>
+                <button class="btn btn-primary btn-sm" *ngIf="payingId !== r.id" (click)="ouvrirPaiement(r)">Payer</button>
+              </ng-container>
+              <span *ngIf="r.statut === 'TERMINEE'" style="color:var(--text-muted);font-size:13px">Clôturé</span>
+            </td>
+          </tr>
+          <tr *ngIf="reservations.length === 0">
+            <td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">
+              Aucun paiement à afficher.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
