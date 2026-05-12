@@ -33,7 +33,7 @@ Le système distingue quatre types d'utilisateurs aux responsabilités bien déf
 - Un **super administrateur** dispose des mêmes droits que l'admin, avec en plus la capacité de créer et gérer d'autres comptes administrateurs.
 - Un **téchnicien** reçoit et traite les ordres de maintenance assignés par l'admin.
 
-L'ensemble des données est stocké dans une base **MySQL** dont le schéma est versionné avec **Flyway**, et le projet est entièrement conteneurisé avec **Docker Compose**.
+L'ensemble des données est stocké dans une base **MySQL** dont le schéma est versionné avec **Flyway** et mapping objet-relationel avec **JPA et Hibernate**, et le projet est entièrement contenarisé avec **Docker** et orchestré avec **Docker-compose** .
 
 ---
 
@@ -49,8 +49,8 @@ L'ensemble des données est stocké dans une base **MySQL** dont le schéma est 
 - **Langages de programmation** : Java 
 - **Framework Back** :  Spring Boot
 - **Framework Front** : Angular
-- **ORM** : JPA
-- **Base de Données** : MySQL
+- **ORM** : JPA, Hibernate
+- **Base de Données** : MySQL 8
 - **Conteunarisation** : Docker
 
 <p align="center">
@@ -69,9 +69,11 @@ Le projet suit une organisation **GitFlow** structurée autour de trois environn
 
 | Environnement | Branche | Rôle |
 |:---:|:---:|:---|
-| **Dev** | `feature/<ticket>` | Développement individuel par ticket |
-| **Pré-prod** | `develop` | Intégration et validation |
-| **Prod** | `main` | Version stable déployée |
+| **Développement** | `feature/<ticket>` | Développement d’une nouvelle fonctionnalité |
+| **Correction** | `fix/<ticket>` | fix d’un bug ou comportement incorrect |
+| **Refactorisation** | `refactor/<ticket>` | Amélioration interne du code sans modification fonctionnelle |
+| **Pré-production** | `develop` | Intégration, validation et tests |
+| **Production** | `main` | Version stable déployée |
 
 <img width="1741" height="805" alt="image" src="https://github.com/user-attachments/assets/c122e440-ecd7-4aa1-bcef-adfb5b6bb14a" />
 
@@ -85,12 +87,16 @@ La répartition du travail repose sur un système de **tickets GitHub Issues**, 
 
 Chacun des membres de l'équipe — **Marouane**, **Saad** et **Rayane** — suit le flux de travail suivant :
 
-1. **Création du ticket** sur `GitHub Issues` avec label et description
-2. **Création d'une branche dédiée** au ticket (`feature/nom-du-ticket`)
-3. **Développement et commits** sur cette branche
-4. **Pull Request vers `develop`** (pré-prod) pour review et validation
-5. **Merge vers `main`** (prod) une fois validé en pré-prod
-6. **Clôture du ticket** et **suppression de la branche** dédiée pour le ticket 
+1. **Création d’un ticket GitHub Issues** avec description et labels
+2. **Création d’une branche dédiée** selon la nature du travail :
+   - `feature/<ticket>` → nouvelle fonctionnalité
+   - `fix/<ticket>` → correction de bug
+   - `refactor/<ticket>` → amélioration ou restructuration du code
+3. **Développement et commits** sur la branche dédiée
+4. **Ouverture d’une Pull Request vers `develop`** pour revue et validation
+5. **Tests et intégration** en environnement de pré-production
+6. **Merge vers `main`** uniquement après validation finale
+7. **Clôture du ticket** et suppression de la branche associée 
 
 Cette approche garantit une traçabilité complète de chaque partie avec des **commits**, pour éviter les conflits entre développeurs et assurer un seul code validé dans la branche de production.
 
@@ -120,22 +126,24 @@ Modèle de base de données :  [Modèle Base de Données](Conceptions/car_locati
 <img width="909" height="818" alt="database" src="https://github.com/user-attachments/assets/a0d2b799-deac-4144-8443-976f70ab1b55" />
 
 ---
-## Contenarisation avec Docker
+## Contenarisation avec Docker et orchéstration docker-compose
 
-Pour voir la partie de **Docker_Compose**, allez sur la branche **`feature/develop`** puis : [Docker](docker-compose.yaml) 
-
-<img width="1158" height="650" alt="image" src="https://github.com/user-attachments/assets/423d3aac-e141-4341-8a63-5b9e4042900d" />
-
-Accédez au **docker_compose.yaml** : [Docker_Compose](docker-compose.yaml) 
-
-Accédez au **docker_file** : [Docker_File](autoloc/Dockerfile) 
+### docker-compose
+Accédez au **docker-compose.yaml** : [Docker_Compose](docker-compose.yaml) 
+### Dockerfile backend
+Accédez au **Dockerfile** du backend : [Docker_File](autoloc/Dockerfile) 
+### Dockerfile frontend
+Accédez au **Dockerfile** du frontend : [Docker_File](autoloc-front/Dockerfile) 
 
 ---
 
-## Lancer l'application avec Docker Compose
+## Lancer l'application avec docker-compose
 
 ### Prérequis
-- Docker
+- Docker Desktop
+  
+Installation :
+https://www.docker.com/products/docker-desktop/
 
 ### Étapes de lancement du projet
 
@@ -155,6 +163,7 @@ docker compose up
 | Service | URL | Description |
 |:---|:---|:---|
 | Frontend Angular | `http://localhost:80` | Interface utilisateur |
+| Swagger UI  | `http://localhost:8080/swagger-ui.html` | Swagger |
 | API Backend | `http://localhost:8080` | API REST Spring Boot |
 | phpMyAdmin | `http://localhost:8081` | Administration base de données et tests des données |
 | MySQL | `localhost:3307` | Base de données |
@@ -166,28 +175,18 @@ docker compose down
 
 **5 — Arrêter et supprimer les données**
 ```bash
-docker compose down
+docker compose down -v
 ```
-
-### Services Docker
-
-| Conteneur | Image | Port |
-|:---|:---|:---:|
-| `mysql_db` | `mysql:8.0` | `3307:3306` |
-| `spring_boot_app` | Build local | `8080:8080` |
-| `angular_app` | Build local | `80:80` |
-| `phpmyadmin` | `phpmyadmin/phpmyadmin` | `8081:80` |
 
 ### Volume Docker
 
-Les données MySQL sont **persistées** dans un volume Docker nommé `mysql_data`.  
-Les données alors sont conservées lors du redémarrage des conteneurs.
+Les données MySQL sont **persistées** dans un volume Docker nommé `mysql_data`, donc elles restent conservées lors du redémarrage des contenaires.
 
 ```bash
 # Voir les volumes existants
 docker volume ls
 
-# Supprimer le volume (remet la BDD à zéro)
+# Supprimer le volume
 docker volume rm autoloc_mysql_data
 ```
 
@@ -457,6 +456,11 @@ Les données incluent également des véhicules, réservations, paiements, ordre
 | **Mockito** | Simulation des dépendances (Repository, JwtUtil, PasswordEncoder...) |
 
 ### Lancement des tests
+
+```bash
+cd autoloc
+mvn test
+```
 
 ### Couverture des tests
 
